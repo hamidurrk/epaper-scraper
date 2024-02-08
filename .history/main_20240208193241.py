@@ -41,18 +41,20 @@ def main():
     ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
     li_elements = ul_element.find_elements_by_tag_name("li")
     num_pages = len(li_elements)
+
+    print(f"Number of elements within the <ul> tag: {num_pages}")
     
     for i in range(2, num_pages):
         page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
         page = driver.find_element_by_xpath(page_element)
         page.click()
+        # print(page)
         # print(image_elements)
         urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]
         # print(urls)
         
         modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
-        num_articles = len(modified_url)
-        
+
         for modified_url in modified_urls:
             print(modified_url)
     

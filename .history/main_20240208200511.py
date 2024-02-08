@@ -65,6 +65,7 @@ def main():
         # print(urls)
         
         modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
+        num_articles = len(modified_url)
         
         for modified_url in modified_urls:
             print(modified_url)

@@ -65,6 +65,7 @@ def main():
         # print(urls)
         
         modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
+        num_articles = len(modified_url)
         
         for modified_url in modified_urls:
             print(modified_url)
@@ -80,7 +81,7 @@ def main():
     # //*[@id="demo2"]/div[2]/ul/li[14]/a
     # //*[@id="demo2"]/div[2]/ul/li[1]/a
     # //*[@id="demo2"]/div[2]/ul
-    print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
+    
     driver.quit()
 
 if __name__ == "__main__":

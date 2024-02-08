@@ -427,3 +427,55 @@ JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39:
 1707399181583	Marionette	INFO	Stopped listening on port 58442
 Dynamically enable window occlusion 1
 JavaScript error: chrome://remote/content/marionette/cert.sys.mjs, line 51: NS_ERROR_NOT_AVAILABLE: Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]
+1707400697910	geckodriver	INFO	Listening on 127.0.0.1:59308
+1707400701000	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofile7OywHJ"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1707400701195	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1707400701240	Marionette	INFO	Listening on port 59319
+Read port: 59319
+1707400701346	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s6Lo-ySsTFszeicWuLCsm9BIHYA2isJaSryvoQutTtY.js line 2 > eval line 992 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+1707400728409	Marionette	INFO	Stopped listening on port 59319
+Dynamically enable window occlusion 1
+1707401117817	geckodriver	INFO	Listening on 127.0.0.1:59592
+1707401120852	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileYnQuzx"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1707401121112	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1707401121171	Marionette	INFO	Listening on port 59604
+Read port: 59604
+1707401121316	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s6Lo-ySsTFszeicWuLCsm9BIHYA2isJaSryvoQutTtY.js line 2 > eval line 2 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+1707401151130	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1707401180384	geckodriver	INFO	Listening on 127.0.0.1:59680
+1707401183423	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileozN9mP"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1707401183667	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1707401183721	Marionette	INFO	Listening on port 59691
+Read port: 59691
+1707401183834	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s6Lo-ySsTFszeicWuLCsm9BIHYA2isJaSryvoQutTtY.js line 2 > eval line 5123 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+1707401214342	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2020/07/27/index.php, line 39: ReferenceError: getSummary is not defined
+1707401428694	Marionette	INFO	Stopped listening on port 59691
+Dynamically enable window occlusion 1

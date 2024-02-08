@@ -47,24 +47,17 @@ def main():
     num_pages = len(li_elements)
     
     for i in range(1, num_pages):
-        folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
-        
-        try:
-            image_elements = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-            )
-        except:
-            driver.quit()
-            
+        folder_path = f"downloaded_articles/jugantor/page_{i}"
+        page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
+        page = driver.find_element_by_xpath(page_element)
         if i != 1:
-            page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
-            page = driver.find_element_by_xpath(page_element)
             page.click()
         # print(image_elements)
         urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]
         # print(urls)
         
         modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
+        num_articles = len(modified_url)
         
         for modified_url in modified_urls:
             print(modified_url)
@@ -73,14 +66,14 @@ def main():
     
     # for _ in range(25):
     #     driver.execute_script("goToNextPage();return false;")
-    time.sleep(2)
+    time.sleep(10)
     
     # //*[@id="demo2"]/div[2]/ul/li[7]/a
     # //*[@id="demo2"]/div[2]/ul/li[14]/a
     # //*[@id="demo2"]/div[2]/ul/li[14]/a
     # //*[@id="demo2"]/div[2]/ul/li[1]/a
     # //*[@id="demo2"]/div[2]/ul
-    print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
+    
     driver.quit()
 
 if __name__ == "__main__":

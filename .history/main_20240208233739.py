@@ -14,35 +14,28 @@ firefox_options = webdriver.FirefoxOptions()
 driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
 def add_url_metadata(image_path, url):
+    # Open the image file
     img = Image.open(image_path)
     
+    # Get Exif data (if available)
     exif_data = img.getexif()
     
+    # Define a custom Exif tag for the URL metadata
     custom_exif_tag = 40000
     
+    # Create a dictionary to store the custom metadata
     custom_metadata = {custom_exif_tag: url}
     
+    # Convert the custom metadata dictionary to a format suitable for Exif
     exif_bytes = {TAGS[key]: custom_metadata[key] for key in custom_metadata}
     
+    # Update the image Exif data with the custom metadata
     img_exif = img.info.get('exif', {})
     img_exif.update(exif_bytes)
     
+    # Save the image with the updated Exif data
     img.save(image_path, exif=img_exif)
-
-def extract_url_metadata(image_path):
-    img = Image.open(image_path)
     
-    exif_data = img.getexif()
-    
-    custom_exif_tag = 40000
-    
-    if custom_exif_tag in exif_data:
-        url = exif_data[custom_exif_tag]
-        print("Extracted URL metadata:", url)
-        return url
-    else:
-        print("URL metadata not found in image.")
-        return None
 
 def download_images(image_urls, folder_path):
     if not os.path.exists(folder_path):
@@ -55,8 +48,7 @@ def download_images(image_urls, folder_path):
             with open(image_path, "wb") as f:
                 f.write(response.content)
                 print(f"Downloaded article_{i}.jpg")
-            # add_url_metadata(image_path, url)
-            # extract_url_metadata(image_path)
+            add_url_metadata(image_path, url)
         except Exception as e:
             print(f"Failed to download article_{url}: {e}")
 

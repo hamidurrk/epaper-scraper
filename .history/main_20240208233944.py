@@ -55,8 +55,8 @@ def download_images(image_urls, folder_path):
             with open(image_path, "wb") as f:
                 f.write(response.content)
                 print(f"Downloaded article_{i}.jpg")
-            # add_url_metadata(image_path, url)
-            # extract_url_metadata(image_path)
+            add_url_metadata(image_path, url)
+            extract_url_metadata(image_path)
         except Exception as e:
             print(f"Failed to download article_{url}: {e}")
 

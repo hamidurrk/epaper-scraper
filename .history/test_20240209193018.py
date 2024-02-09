@@ -30,19 +30,22 @@ def extract_article(img_location):
         print("Could not find recognizable characters.")
         return None
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))       
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
+print(BASE_DIR)
 
 year, month, day = "2020", "07", "27"
 
-def extract_all(year, month, day):
-    num_pages = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day)))
+num_pages = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day)))
 
-    for i in range(1, num_pages + 1):
-        num_articles = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")))
-        for j in range(1, num_articles + 1):
-            img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
-            extract_article(img_location)
+print(num_pages)
+
+for i in range(1, num_pages + 1):
+    num_articles = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")))
+    print(num_articles)
+    for j in range(1, num_articles + 1):
+        img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
+        print(img_location)
         
 
 
-# img_location = 'C:/Users/hamid/OneDrive/Documents/epaper-scraper/downloaded_articles/jugantor/2020/07/27/page_10/article_12.jpg'
+img_location = 'C:/Users/hamid/OneDrive/Documents/epaper-scraper/downloaded_articles/jugantor/2020/07/27/page_10/article_12.jpg'

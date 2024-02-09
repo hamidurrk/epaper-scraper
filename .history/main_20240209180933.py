@@ -6,13 +6,12 @@ from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from PIL import Image
+from PIL.ExifTags import TAGS
 import sqlite3
-from PIL import Image    
-import pytesseract
-
-pytesseract.pytesseract.tesseract_cmd="C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"
 
 conn = sqlite3.connect('jugantor.db')
+
 
 def create_table():
     c = conn.cursor()
@@ -46,10 +45,16 @@ def download_images(image_urls, folder_path):
             with open(image_path, "wb") as f:
                 f.write(response.content)
                 print(f"Downloaded article_{i}.jpg")
+            # add_url_metadata(image_path, url)
+            # extract_url_metadata(image_path)
         except Exception as e:
             print(f"Failed to download article_{url}: {e}")
 
 def scrape(day: str, month: str, year: str):
+    # day = "28"
+    # month = "07"
+    # year = "2020"
+    
     firefox_options = webdriver.FirefoxOptions()
     # firefox_options.add_argument("--headless") 
     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
@@ -94,14 +99,7 @@ def scrape(day: str, month: str, year: str):
     print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
     driver.quit()
 
-def separate_article_heading(text):
-    lines = text.split('\n', 1)
-    if len(lines) > 1:
-        first_line = lines[0]
-        remaining_text = lines[1]
-        return first_line, remaining_text
-    else:
-        return text, ""
-
 if __name__ == "__main__":
+    # main()
     scrape("29", "01", "2020")
+    create_table()

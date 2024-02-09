@@ -25,10 +25,9 @@ def extract_article(img_location):
         print("Article:")
         print(article)
         print ("Number of Words: ", num_words)
-        return article_title, article, num_words, raw_output
+        return article_title, article, num_words
     else:
         print("Could not find recognizable characters.")
-        return None
         
 
 img_location = 'C:/Users/hamid/OneDrive/Documents/epaper-scraper/downloaded_articles/jugantor/2020/07/27/page_10/article_12.jpg'

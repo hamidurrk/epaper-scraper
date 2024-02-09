@@ -493,3 +493,14 @@ JavaScript warning: https://pagead2.googlesyndication.com/bg/s6Lo-ySsTFszeicWuLC
 JavaScript error: https://old-epaper.jugantor.com/2020/07/28/index.php, line 39: ReferenceError: getSummary is not defined
 Exiting due to channel error.
 Exiting due to channel error.
+1707480082277	geckodriver	INFO	Listening on 127.0.0.1:54962
+1707480085342	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileytUaFd"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1707480085632	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1707480085830	Marionette	INFO	Listening on port 54972
+Read port: 54972
+1707480085960	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1707480110937	Marionette	INFO	Stopped listening on port 54972
+Dynamically enable window occlusion 1

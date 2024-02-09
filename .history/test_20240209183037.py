@@ -14,21 +14,19 @@ def separate_article_title(text):
         return text, ""
 
 def extract_article(img_location):
-    raw_output = pytesseract.pytesseract.image_to_string(Image.open(img_location), lang='ben')
+    output = pytesseract.pytesseract.image_to_string(Image.open(img_location), lang='ben')
 
-    if len(raw_output) > 1:
-        num_words = len(raw_output.split())
-        # print(raw_output)
+    if len(output) > 1:
+        num_words = len(output.split())
+        # print(output)
 
-        article_title, article = separate_article_title(raw_output)
+        article_title, article = separate_article_title(output)
         print("Article Title: ", article_title)
         print("Article:")
         print(article)
         print ("Number of Words: ", num_words)
-        return article_title, article, num_words, raw_output
     else:
         print("Could not find recognizable characters.")
-        return None
         
 
 img_location = 'C:/Users/hamid/OneDrive/Documents/epaper-scraper/downloaded_articles/jugantor/2020/07/27/page_10/article_12.jpg'

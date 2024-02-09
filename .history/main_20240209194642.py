@@ -17,24 +17,23 @@ conn = sqlite3.connect('jugantor.db')
 def create_table():
     c = conn.cursor()
     c.execute("""CREATE TABLE jugantor (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                year INTEGER,
-                date INTEGER,
-                article_title TEXT,
-                article TEXT,
-                wordcount INTEGER,
-                pagenum INTEGER,
-                url TEXT
+                id integer primary key,
+                year integer,
+                date integer,
+                article_title text,
+                article text,
+                wordcount integer,
+                pagenum integer,
+                url text
                 )""")
     conn.close()
 
 def insert_to_jugantor(year, date, article_title, article, wordcount, pagenum, url):
-        c = conn.cursor()
-        with conn:
-            c.execute("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                    (year, date, article_title, article, wordcount, pagenum, url))
-        print("Data inserted successfully")
-    # conn.close()
+    c = conn.cursor()
+    with conn:
+        c.execute("INSERT INTO jugantor VALUES (:first, :last, :pay)", 
+                  {'year': year, 'date': date, 'article_title': article_title, 'article': article, 'wordcount': wordcount, 'pagenum': pagenum, 'url': url})
+    conn.close()
 
 def download_images(image_urls, folder_path):
     if not os.path.exists(folder_path):
@@ -127,15 +126,10 @@ def extract_all_and_store(year, month, day):
         num_articles = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")))
         for j in range(1, num_articles + 1):
             img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
-            print(img_location)
-            try: 
-                article_title, article, num_words, raw_output = extract_article(img_location)
-                insert_to_jugantor(year, f"{year}-{month}-{day}", article_title, article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
-            except:
-                print("Did not initiate data entry")
-                pass
-    conn.close()
+            article_title, article, num_words, raw_output = extract_article(img_location)
+            insert_to_jugantor(year, f"{year}-{month}-{day}", article_title, article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
+            
+
 
 if __name__ == "__main__":
-    # scrape("29", "01", "2020")
-    extract_all_and_store("2020", "07", "27")
+    scrape("29", "01", "2020")

@@ -29,11 +29,10 @@ def create_table():
     conn.close()
 
 def insert_to_jugantor(year, date, article_title, article, wordcount, pagenum, url):
-        c = conn.cursor()
-        with conn:
-            c.execute("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                    (year, date, article_title, article, wordcount, pagenum, url))
-        print("Data inserted successfully")
+    c = conn.cursor()
+    with conn:
+        c.execute("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                  (year, date, article_title, article, wordcount, pagenum, url))
     # conn.close()
 
 def download_images(image_urls, folder_path):
@@ -128,12 +127,8 @@ def extract_all_and_store(year, month, day):
         for j in range(1, num_articles + 1):
             img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
             print(img_location)
-            try: 
-                article_title, article, num_words, raw_output = extract_article(img_location)
-                insert_to_jugantor(year, f"{year}-{month}-{day}", article_title, article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
-            except:
-                print("Did not initiate data entry")
-                pass
+            article_title, article, num_words, raw_output = extract_article(img_location)
+            insert_to_jugantor(year, f"{year}-{month}-{day}", article_title, article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
     conn.close()
 
 if __name__ == "__main__":

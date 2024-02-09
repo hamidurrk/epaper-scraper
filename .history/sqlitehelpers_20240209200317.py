@@ -2,8 +2,8 @@ import sqlite3
 
 conn = sqlite3.connect('jugantor.db')
 
+c = conn.cursor()
 def create_table():
-    conn = sqlite3.connect('jugantor.db')
     c = conn.cursor()
     c.execute("""CREATE TABLE jugantor (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,10 +17,10 @@ def create_table():
                 )""")
     conn.close()
 
-def insert_to_jugantor(year, date, article_title, article, wordcount, pagenum, url):
+def insert_emp(year, date, article_title, article, wordcount, pagenum, url):
     c = conn.cursor()
     with conn:
-        c.execute("INSERT INTO jugantor VALUES (:year, :date, :article_title, :article, :wordcount, :pagenum, :url)", 
+        c.execute("INSERT INTO jugantor VALUES (:first, :last, :pay)", 
                   {'year': year, 'date': date, 'article_title': article_title, 'article': article, 'wordcount': wordcount, 'pagenum': pagenum, 'url': url})
     conn.close()
     

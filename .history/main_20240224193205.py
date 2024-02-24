@@ -63,12 +63,12 @@ def scrape(year: str, month: str, day: str):
     
     driver.get(url)
     try:
-        print("\nURL opened")
+        print("URL opened")
         image_elements = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
         )
     except:
-        print("\nCouldn't open URL")
+        print("Couldn't open URL")
         pass
         # driver.quit()
         
@@ -179,4 +179,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2020", "07", "27")
-    scrape_all_range("2024", "01", "01", "2024", "02", "20")
+    scrape_all_range("2024", "01", "01", "2024", "03", "01")

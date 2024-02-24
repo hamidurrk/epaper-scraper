@@ -58,19 +58,19 @@ def download_images(image_urls, folder_path):
             print(f"Failed to download article_{url}: {e}")
 
 def scrape(year: str, month: str, day: str):
+
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
     # "https://old-epaper.jugantor.com/2020/07/27/index.php"  
     
     driver.get(url)
     try:
-        print("\nURL opened")
+        print("URL opened")
         image_elements = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
         )
     except:
-        print("\nCouldn't open URL")
-        pass
-        # driver.quit()
+        print("Couldn't open URL")
+        driver.quit()
         
     ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
     li_elements = ul_element.find_elements_by_tag_name("li")
@@ -84,8 +84,7 @@ def scrape(year: str, month: str, day: str):
                 EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
             )
         except:
-            pass
-            # driver.quit()
+            driver.quit()
             
         if i != 1:
             page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
@@ -128,7 +127,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
             sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
             # sys.stdout.flush()
             # print(f"Year: {year}, Month: {month}, Day: {day}")
-            scrape(year, month, day)
+            # scrape(year, month, day)
             current_date += timedelta(days=1)
             time.sleep(0.1)
             pbar.update(1)
@@ -179,4 +178,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2020", "07", "27")
-    scrape_all_range("2024", "01", "01", "2024", "02", "20")
+    scrape_all_range("2024", "01", "01", "2024", "03", "01")

@@ -17,10 +17,6 @@ pytesseract.pytesseract.tesseract_cmd="C:\\Program Files (x86)\\Tesseract-OCR\\t
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))       
 conn = sqlite3.connect('jugantor.db')
 
-firefox_options = webdriver.FirefoxOptions()
-firefox_options.add_argument("--headless") 
-driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
-
 def create_table():
     c = conn.cursor()
     c.execute("""CREATE TABLE jugantor (
@@ -58,19 +54,20 @@ def download_images(image_urls, folder_path):
             print(f"Failed to download article_{url}: {e}")
 
 def scrape(year: str, month: str, day: str):
+    firefox_options = webdriver.FirefoxOptions()
+    # firefox_options.add_argument("--headless") 
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
     # "https://old-epaper.jugantor.com/2020/07/27/index.php"  
     
     driver.get(url)
     try:
-        print("\nURL opened")
         image_elements = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
         )
     except:
-        print("\nCouldn't open URL")
-        pass
-        # driver.quit()
+        driver.quit()
         
     ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
     li_elements = ul_element.find_elements_by_tag_name("li")
@@ -84,8 +81,7 @@ def scrape(year: str, month: str, day: str):
                 EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
             )
         except:
-            pass
-            # driver.quit()
+            driver.quit()
             
         if i != 1:
             page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
@@ -102,24 +98,20 @@ def scrape(year: str, month: str, day: str):
     print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
     driver.quit()
     
-def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
+def scrape_all_since(start_year, start_month, start_day):
     start_year = int(start_year)
     start_month = int(start_month)
     start_day = int(start_day)
 
-    # end_year = date.today().year
-    # end_month = date.today().month
-    # end_day = date.today().day
-
-    end_year = int(end_year)
-    end_month = int(end_month)
-    end_day = int(end_day)
+    end_year = date.today().year
+    end_month = date.today().month
+    end_day = date.today().day
 
     start_date = date(start_year, start_month, start_day)
     end_date = date(end_year, end_month, end_day)
 
     total_days = (end_date - start_date).days + 1
-    with tqdm(total=total_days, position=1) as pbar:
+    with tqdm(total=total_days, position=1, leave=True) as pbar:
         current_date = start_date
         while current_date <= end_date:
             year = str(current_date.year)
@@ -128,11 +120,9 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
             sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
             # sys.stdout.flush()
             # print(f"Year: {year}, Month: {month}, Day: {day}")
-            scrape(year, month, day)
             current_date += timedelta(days=1)
             time.sleep(0.1)
             pbar.update(1)
-    print(f"\nScraping finished from {start_date} to {end_date}")
 
 def separate_article_title(text):
     lines = text.split('\n', 1)
@@ -179,4 +169,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2020", "07", "27")
-    scrape_all_range("2024", "01", "01", "2024", "02", "20")
+    scrape_all_since("2024", "01", "01")

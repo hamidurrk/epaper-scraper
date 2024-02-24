@@ -17,10 +17,6 @@ pytesseract.pytesseract.tesseract_cmd="C:\\Program Files (x86)\\Tesseract-OCR\\t
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))       
 conn = sqlite3.connect('jugantor.db')
 
-firefox_options = webdriver.FirefoxOptions()
-firefox_options.add_argument("--headless") 
-driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
-
 def create_table():
     c = conn.cursor()
     c.execute("""CREATE TABLE jugantor (
@@ -58,19 +54,20 @@ def download_images(image_urls, folder_path):
             print(f"Failed to download article_{url}: {e}")
 
 def scrape(year: str, month: str, day: str):
+    firefox_options = webdriver.FirefoxOptions()
+    # firefox_options.add_argument("--headless") 
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
     # "https://old-epaper.jugantor.com/2020/07/27/index.php"  
     
     driver.get(url)
     try:
-        print("\nURL opened")
         image_elements = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
         )
     except:
-        print("\nCouldn't open URL")
-        pass
-        # driver.quit()
+        driver.quit()
         
     ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
     li_elements = ul_element.find_elements_by_tag_name("li")
@@ -84,8 +81,7 @@ def scrape(year: str, month: str, day: str):
                 EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
             )
         except:
-            pass
-            # driver.quit()
+            driver.quit()
             
         if i != 1:
             page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
@@ -179,4 +175,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2020", "07", "27")
-    scrape_all_range("2024", "01", "01", "2024", "02", "20")
+    scrape_all_since("2024", "01", "01")

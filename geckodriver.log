@@ -504,3 +504,28 @@ Read port: 54972
 1707480085960	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1707480110937	Marionette	INFO	Stopped listening on port 54972
 Dynamically enable window occlusion 1
+1708781183536	geckodriver	INFO	Listening on 127.0.0.1:8586
+1708781186602	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileX9bZ2N"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1708781186873	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1708781187085	Marionette	INFO	Listening on port 8596
+Read port: 8596
+1708781187210	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1708781192399	Marionette	INFO	Stopped listening on port 8596
+Dynamically enable window occlusion 1
+JavaScript error: chrome://remote/content/marionette/cert.sys.mjs, line 51: NS_ERROR_NOT_AVAILABLE: Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]
+JavaScript error: chrome://remote/content/marionette/cert.sys.mjs, line 51: NS_ERROR_NOT_AVAILABLE: Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]
+1708781637967	geckodriver	INFO	Listening on 127.0.0.1:8782
+1708781641014	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileRwVeFH"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1708781641258	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1708781641442	Marionette	INFO	Listening on port 8795
+Read port: 8795
+1708781641550	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1708781671727	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1708781687890	Marionette	INFO	Stopped listening on port 8795
+Dynamically enable window occlusion 1

@@ -63,61 +63,47 @@ def scrape(year: str, month: str, day: str):
     # "https://old-epaper.jugantor.com/2020/07/27/index.php"  
     print(f"\nAccessing: {url}")
     driver.get(url)
-    try:
-        print("\nURL opened")
-        image_elements = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-        )
-    except:
-        print("\nCouldn't open URL")
-        pass
-        # driver.quit()
+    # try:
+    #     print("\nURL opened")
+    #     image_elements = WebDriverWait(driver, 10).until(
+    #         EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
+    #     )
+    # except:
+    #     print("\nCouldn't open URL")
+    #     pass
+    #     # driver.quit()
         
-    ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
-    li_elements = ul_element.find_elements_by_tag_name("li")
-    num_pages = len(li_elements)
+    # ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
+    # li_elements = ul_element.find_elements_by_tag_name("li")
+    # num_pages = len(li_elements)
     
-    for i in range(1, num_pages + 1):
-        folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
+    # for i in range(1, num_pages + 1):
+    #     folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
         
-        try:
-            image_elements = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-            )
-        except:
-            pass
-            # driver.quit()
+    #     try:
+    #         image_elements = WebDriverWait(driver, 10).until(
+    #             EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
+    #         )
+    #     except:
+    #         pass
+    #         # driver.quit()
             
-        if i != 1:
-            page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
-            page = driver.find_element_by_xpath(page_element)
-            page.click()
+    #     if i != 1:
+    #         page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
+    #         page = driver.find_element_by_xpath(page_element)
+    #         page.click()
 
-        urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]   
-        modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
+    #     urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]   
+    #     modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
          
-        download_images(modified_urls, folder_path)
+    #     download_images(modified_urls, folder_path)
     
     time.sleep(2)
     
     print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
     # driver.quit()
     
-def load_scraped_dates(file_path):
-    scraped_dates = set()
-    if os.path.exists(file_path):
-        with open(file_path, "r") as file:
-            for line in file:
-                scraped_dates.add(line.strip())
-    return scraped_dates
-
-def save_scraped_dates(scraped_dates, file_path):
-    with open(file_path, "a") as file:
-        for date in scraped_dates:
-            file.write(date + "\n")
-            
 def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
-    file_path = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates.txt")
     start_year = int(start_year)
     start_month = int(start_month)
     start_day = int(start_day)
@@ -134,31 +120,19 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     end_date = date(end_year, end_month, end_day)
 
     total_days = (end_date - start_date).days + 1
-    # with tqdm(total=total_days, position=1) as pbar:
-    current_date = start_date
-    scraped_dates = load_scraped_dates(file_path)
-    while current_date <= end_date:
-        year = str(current_date.year)
-        month = str(current_date.month).zfill(2)
-        day = str(current_date.day).zfill(2)
-        date_str = f"{year}-{month}-{day}"
-        if date_str not in scraped_dates:
+    with tqdm(total=total_days, position=1) as pbar:
+        current_date = start_date
+        while current_date <= end_date:
+            year = str(current_date.year)
+            month = str(current_date.month).zfill(2)
+            day = str(current_date.day).zfill(2)
             sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
+            # sys.stdout.flush()
             # print(f"Year: {year}, Month: {month}, Day: {day}")
-            
-            # scrape(year, month, day)
-            
-            scraped_dates.add(date_str)
-            save_scraped_dates({date_str}, file_path)
-            
+            scrape(year, month, day)
             current_date += timedelta(days=1)
             time.sleep(0.1)
-            # pbar.update(1)
-        else:
-            print(f"{date_str} already scraped.")
-            current_date += timedelta(days=1)
-            time.sleep(0.1)
-            # pbar.update(1)
+            pbar.update(1)
     print(f"\nScraping finished from {start_date} to {end_date}")
 
 def separate_article_title(text):

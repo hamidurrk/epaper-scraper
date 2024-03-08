@@ -53,15 +53,14 @@ def download_images(image_urls, folder_path):
             image_path = os.path.join(folder_path, f"article_{i}.jpg")
             with open(image_path, "wb") as f:
                 f.write(response.content)
-                # print(f"Downloaded article_{i}.jpg")
-                sys.stdout.write(f"\rDownloaded article_{i}.jpg")
+                print(f"Downloaded article_{i}.jpg")
         except Exception as e:
             print(f"Failed to download article_{url}: {e}")
 
 def scrape(year: str, month: str, day: str):
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
     # "https://old-epaper.jugantor.com/2020/07/27/index.php"  
-    print(f"\nAccessing: {url}")
+    
     driver.get(url)
     try:
         print("\nURL opened")
@@ -101,23 +100,9 @@ def scrape(year: str, month: str, day: str):
     time.sleep(2)
     
     print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
-    # driver.quit()
+    driver.quit()
     
-def load_scraped_dates(file_path):
-    scraped_dates = set()
-    if os.path.exists(file_path):
-        with open(file_path, "r") as file:
-            for line in file:
-                scraped_dates.add(line.strip())
-    return scraped_dates
-
-def save_scraped_dates(scraped_dates, file_path):
-    with open(file_path, "a") as file:
-        for date in scraped_dates:
-            file.write(date + "\n")
-            
 def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
-    file_path = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates.txt")
     start_year = int(start_year)
     start_month = int(start_month)
     start_day = int(start_day)
@@ -134,31 +119,19 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     end_date = date(end_year, end_month, end_day)
 
     total_days = (end_date - start_date).days + 1
-    # with tqdm(total=total_days, position=1) as pbar:
-    current_date = start_date
-    scraped_dates = load_scraped_dates(file_path)
-    while current_date <= end_date:
-        year = str(current_date.year)
-        month = str(current_date.month).zfill(2)
-        day = str(current_date.day).zfill(2)
-        date_str = f"{year}-{month}-{day}"
-        if date_str not in scraped_dates:
+    with tqdm(total=total_days, position=1) as pbar:
+        current_date = start_date
+        while current_date <= end_date:
+            year = str(current_date.year)
+            month = str(current_date.month).zfill(2)
+            day = str(current_date.day).zfill(2)
             sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
+            # sys.stdout.flush()
             # print(f"Year: {year}, Month: {month}, Day: {day}")
-            
-            # scrape(year, month, day)
-            
-            scraped_dates.add(date_str)
-            save_scraped_dates({date_str}, file_path)
-            
+            scrape(year, month, day)
             current_date += timedelta(days=1)
             time.sleep(0.1)
-            # pbar.update(1)
-        else:
-            print(f"{date_str} already scraped.")
-            current_date += timedelta(days=1)
-            time.sleep(0.1)
-            # pbar.update(1)
+            pbar.update(1)
     print(f"\nScraping finished from {start_date} to {end_date}")
 
 def separate_article_title(text):
@@ -201,9 +174,9 @@ def extract_all_and_store(year, month, day):
                 print("Did not initiate data entry:", e)
                 pass
     print(f"Success: Article Extraction Completed! JUGANTOR-{year}/{month}/{day}")
-    # conn.close()
+    conn.close()
 
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2020", "07", "27")
-    scrape_all_range("2016", "01", "02", "2016", "01", "03")
+    scrape_all_range("2016", "01", "01", "2016", "01", "02")

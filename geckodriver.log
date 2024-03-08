@@ -529,3 +529,120 @@ Read port: 8795
 1708781671727	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
 1708781687890	Marionette	INFO	Stopped listening on port 8795
 Dynamically enable window occlusion 1
+1709856675653	geckodriver	INFO	Listening on 127.0.0.1:7253
+1709856678716	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofilePvOzLO"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709856679043	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709856679276	Marionette	INFO	Listening on port 7263
+Read port: 7263
+1709856679416	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1709856710641	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1709857115169	Marionette	INFO	Stopped listening on port 7263
+Dynamically enable window occlusion 1
+ng command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileITHfhh"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709856818554	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709856818625	Marionette	INFO	Listening on port 7350
+Read port: 7350
+1709856818841	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://get.s-onetag.com/underground-sync-portal/Portal.js, line 2: SecurityError: The operation is insecure.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/O8T1Km08OhS5_Tz58jKeajrFynp-IyfJlJwKv1268Sc.js line 2 > eval line 147 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: https://get.s-onetag.com/underground-sync-portal/Portal.js, line 2: SecurityError: The operation is insecure.
+JavaScript warning: https://get.s-onetag.com/f0c84061-4182-4398-8e37-5ff5b5698a6f/tag.min.js, line 12: Script terminated by timeout at:
+G@https://get.s-onetag.com/f0c84061-4182-4398-8e37-5ff5b5698a6f/tag.min.js:12:300
+
+1709856837909	Marionette	INFO	Stopped listening on port 7350
+Dynamically enable window occlusion 1
+1709856876300	geckodriver	INFO	Listening on 127.0.0.1:7458
+1709856879344	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileWmNw2A"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709856879566	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709856879616	Marionette	INFO	Listening on port 7468
+Read port: 7468
+1709856879732	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://pagead2.googlesyndication.com/bg/O8T1Km08OhS5_Tz58jKeajrFynp-IyfJlJwKv1268Sc.js line 2 > eval line 2322 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+1709856910212	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+JavaScript error: https://old-epaper.jugantor.com/2016/01/01/index.php, line 39: ReferenceError: getSummary is not defined
+1709856979840	Marionette	INFO	Stopped listening on port 7468
+Dynamically enable window occlusion 1
+1709925256426	geckodriver	INFO	Listening on 127.0.0.1:7620
+1709925259475	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileMNHSZG"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709925259785	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709925259999	Marionette	INFO	Listening on port 7630
+Read port: 7630
+1709925260129	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://pagead2.googlesyndication.com/bg/O8T1Km08OhS5_Tz58jKeajrFynp-IyfJlJwKv1268Sc.js line 2 > eval line 2101 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/O8T1Km08OhS5_Tz58jKeajrFynp-IyfJlJwKv1268Sc.js line 2 > eval line 2892 > eval line 1 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+1709925271778	Marionette	INFO	Stopped listening on port 7630
+Dynamically enable window occlusion 1
+1709926259003	geckodriver	INFO	Listening on 127.0.0.1:8137
+1709926262061	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofileHlur7L"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709926262339	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709926262526	Marionette	INFO	Listening on port 8147
+Read port: 8147
+1709926262645	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1709926292362	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1709926349038	Marionette	INFO	Stopped listening on port 8147
+Dynamically enable window occlusion 1
+1709926354739	geckodriver	INFO	Listening on 127.0.0.1:8210
+1709926357818	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofilesx0YOh"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709926358111	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709926358298	Marionette	INFO	Listening on port 8220
+Read port: 8220
+1709926358413	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1709926422235	geckodriver	INFO	Listening on 127.0.0.1:8272
+1709926425277	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofilerDSji6"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709926425566	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709926425889	Marionette	INFO	Listening on port 8284
+Read port: 8284
+1709926426007	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1709926456188	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1709926601105	Marionette	INFO	Stopped listening on port 8284
+Dynamically enable window occlusion 1
+1709926604960	geckodriver	INFO	Listening on 127.0.0.1:8393
+1709926608017	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-no-remote" "-profile" "C:\\Users\\hamid\\AppData\\Local\\Temp\\rust_mozprofilelCxB74"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1709926608306	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1709926608617	Marionette	INFO	Listening on port 8403
+Read port: 8403
+1709926608719	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1709926617653	Marionette	INFO	Stopped listening on port 8403
+Dynamically enable window occlusion 1

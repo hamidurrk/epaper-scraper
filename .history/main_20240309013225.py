@@ -134,31 +134,28 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     end_date = date(end_year, end_month, end_day)
 
     total_days = (end_date - start_date).days + 1
-    # with tqdm(total=total_days, position=1) as pbar:
-    current_date = start_date
-    scraped_dates = load_scraped_dates(file_path)
-    while current_date <= end_date:
-        year = str(current_date.year)
-        month = str(current_date.month).zfill(2)
-        day = str(current_date.day).zfill(2)
-        date_str = f"{year}-{month}-{day}"
-        if date_str not in scraped_dates:
-            sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
-            # print(f"Year: {year}, Month: {month}, Day: {day}")
-            
-            # scrape(year, month, day)
-            
-            scraped_dates.add(date_str)
-            save_scraped_dates({date_str}, file_path)
-            
-            current_date += timedelta(days=1)
-            time.sleep(0.1)
-            # pbar.update(1)
-        else:
-            print(f"{date_str} already scraped.")
-            current_date += timedelta(days=1)
-            time.sleep(0.1)
-            # pbar.update(1)
+    with tqdm(total=total_days, position=1) as pbar:
+        current_date = start_date
+        scraped_dates = load_scraped_dates(file_path)
+        while current_date <= end_date:
+            year = str(current_date.year)
+            month = str(current_date.month).zfill(2)
+            day = str(current_date.day).zfill(2)
+            date_str = f"{year}-{month}-{day}"
+            if date_str not in scraped_dates:
+                sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
+                # print(f"Year: {year}, Month: {month}, Day: {day}")
+                
+                # scrape(year, month, day)
+                
+                scraped_dates.add(date_str)
+                save_scraped_dates({date_str}, file_path)
+                
+                current_date += timedelta(days=1)
+                time.sleep(0.1)
+                pbar.update(1)
+            else:
+                print(f"{date_str} already scraped.")
     print(f"\nScraping finished from {start_date} to {end_date}")
 
 def separate_article_title(text):

@@ -18,9 +18,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 conn = sqlite3.connect('jugantor.db')
 
 firefox_options = webdriver.FirefoxOptions()
-# firefox_options.add_argument("--headless") 
-# driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
-driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args = ['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
+firefox_options.add_argument("--headless") 
+driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
 def create_table():
     c = conn.cursor()
@@ -44,12 +43,6 @@ def insert_to_jugantor(year, date, article_title, article, wordcount, pagenum, u
         print("Data inserted successfully")
     # conn.close()
 
-def gen_prompt(message, value = 70, char="-"):
-    print("\n")
-    wrt = " " + message + " "
-    print(wrt.center(value, char))
-    print("\n")
-    
 def download_images(image_urls, folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -78,6 +71,7 @@ def scrape(year: str, month: str, day: str):
     except:
         print("\nCouldn't open URL")
         pass
+        # driver.quit()
         
     ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
     li_elements = ul_element.find_elements_by_tag_name("li")
@@ -92,15 +86,13 @@ def scrape(year: str, month: str, day: str):
             )
         except:
             pass
-        
+            # driver.quit()
+            
         if i != 1:
             page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
             page = driver.find_element_by_xpath(page_element)
             page.click()
-            time.sleep(2)
-        
-        gen_prompt(f"Accessed Page {i}")
-        
+
         urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]   
         modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
          
@@ -108,8 +100,7 @@ def scrape(year: str, month: str, day: str):
     
     time.sleep(2)
     
-    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
-    gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
+    print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
     # driver.quit()
     
 def load_scraped_dates(file_path):
@@ -143,6 +134,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     end_date = date(end_year, end_month, end_day)
 
     total_days = (end_date - start_date).days + 1
+    # with tqdm(total=total_days, position=1) as pbar:
     current_date = start_date
     scraped_dates = load_scraped_dates(file_path)
     while current_date <= end_date:
@@ -151,9 +143,8 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
         if date_str not in scraped_dates:
-            # sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
-            gen_prompt(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}", value=100)
-            # print(f"Attempting Scrape: Year: {year}, Month: {month}, Day: {day}")
+            sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
+            # print(f"Year: {year}, Month: {month}, Day: {day}")
             try: 
                 scrape(year, month, day) 
             except Exception as e:
@@ -165,10 +156,12 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
             
             current_date += timedelta(days=1)
             time.sleep(0.1)
+            # pbar.update(1)
         else:
             print(f"{date_str} already scraped.")
             current_date += timedelta(days=1)
             time.sleep(0.1)
+            # pbar.update(1)
     print(f"\nScraping finished from {start_date} to {end_date}")
 
 def separate_article_title(text):
@@ -215,5 +208,5 @@ def extract_all_and_store(year, month, day):
 
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
-    extract_all_and_store("2016", "03", "08")
-    # scrape_all_range("2016", "03", "08", "2016", "03", "09")
+    # extract_all_and_store("2020", "07", "27")
+    scrape_all_range("2016", "01", "02", "2016", "01", "03")

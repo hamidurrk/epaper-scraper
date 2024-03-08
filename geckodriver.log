@@ -646,3 +646,7 @@ Read port: 8403
 1709926608719	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1709926617653	Marionette	INFO	Stopped listening on port 8403
 Dynamically enable window occlusion 1
+1709927525846	geckodriver	INFO	Listening on 127.0.0.1:8853
+1709927751887	geckodriver	INFO	Listening on 127.0.0.1:9267
+1709928385822	geckodriver	INFO	Listening on 127.0.0.1:9529
+1709929026261	geckodriver	INFO	Listening on 127.0.0.1:10388

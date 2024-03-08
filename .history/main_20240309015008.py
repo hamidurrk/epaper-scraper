@@ -97,7 +97,6 @@ def scrape(year: str, month: str, day: str):
             page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
             page = driver.find_element_by_xpath(page_element)
             page.click()
-            time.sleep(2)
         
         gen_prompt(f"Accessed Page {i}")
         
@@ -108,8 +107,7 @@ def scrape(year: str, month: str, day: str):
     
     time.sleep(2)
     
-    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
-    gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
+    print(f"Success: Scraped JUGANTOR-{year}/{month}/{day}")
     # driver.quit()
     
 def load_scraped_dates(file_path):
@@ -151,9 +149,8 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
         if date_str not in scraped_dates:
-            # sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
-            gen_prompt(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}", value=100)
-            # print(f"Attempting Scrape: Year: {year}, Month: {month}, Day: {day}")
+            sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
+            # print(f"Year: {year}, Month: {month}, Day: {day}")
             try: 
                 scrape(year, month, day) 
             except Exception as e:
@@ -215,5 +212,5 @@ def extract_all_and_store(year, month, day):
 
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
-    extract_all_and_store("2016", "03", "08")
-    # scrape_all_range("2016", "03", "08", "2016", "03", "09")
+    # extract_all_and_store("2020", "07", "27")
+    scrape_all_range("2016", "01", "02", "2016", "01", "03")

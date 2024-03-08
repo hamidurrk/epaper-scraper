@@ -152,7 +152,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
         date_str = f"{year}-{month}-{day}"
         if date_str not in scraped_dates:
             # sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
-            gen_prompt(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}", value=100)
+            gen_prompt(f"Attempting Scrape | Year: {year}, Month: {month}, Day: {day}")
             # print(f"Attempting Scrape: Year: {year}, Month: {month}, Day: {day}")
             try: 
                 scrape(year, month, day) 
@@ -215,5 +215,5 @@ def extract_all_and_store(year, month, day):
 
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
-    extract_all_and_store("2016", "03", "08")
-    # scrape_all_range("2016", "03", "08", "2016", "03", "09")
+    # extract_all_and_store("2020", "07", "27")
+    scrape_all_range("2016", "01", "02", "2016", "01", "03")

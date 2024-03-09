@@ -58,7 +58,7 @@ def gen_prompt(message, value=70, char="-"):
 def download_images(image_urls, folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-        sys.stdout.write("\n")
+        # sys.stdout.write("\n")
 
     for i, url in enumerate(image_urls, 1):
         try:
@@ -66,8 +66,8 @@ def download_images(image_urls, folder_path):
             image_path = os.path.join(folder_path, f"article_{i}.jpg")
             with open(image_path, "wb") as f:
                 f.write(response.content)
-                # print(f"Downloaded article_{i}.jpg")
-                sys.stdout.write(f"\rDownloaded article_{i}.jpg")
+                print(f"Downloaded article_{i}.jpg")
+                # sys.stdout.write(f"\rDownloaded article_{i}.jpg")
         except Exception as e:
             print(f"Failed to download article_{url}: {e}")
     sys.stdout.write("\033[K")  # Clear the line
@@ -149,13 +149,13 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
 
     total_iterations = (end_date - start_date).days + 1
     
-    pbar = tqdm(total=total_iterations, desc="Progress", unit="paper",)
+    pbar = tqdm(total=total_iterations, desc="Progress", unit="iteration")
     current_date = start_date
     scraped_dates = load_scraped_dates(file_path)
     while current_date <= end_date:
         os.system('cls' if os.name == 'nt' else 'clear')
         pbar.update(1)
-        sys.stdout.write("\n\n")
+        sys.stdout.write("\n\n\n")
         year = str(current_date.year)
         month = str(current_date.month).zfill(2)
         day = str(current_date.day).zfill(2)
@@ -227,4 +227,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2016", "03", "08")
-    scrape_all_range("2016", "03", "15", "2016", "04", "15")
+    scrape_all_range("2016", "02", "09", "2016", "03", "07")

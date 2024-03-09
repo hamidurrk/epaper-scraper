@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
+from concurrent.futures import ThreadPoolExecutor
 import sqlite3
 from PIL import Image    
 import pytesseract
@@ -43,13 +44,6 @@ def insert_to_jugantor(year, date, article_title, article, wordcount, pagenum, u
             c.execute("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", 
                     (year, date, article_title, article, wordcount, pagenum, url))
         print("Data inserted successfully")
-    # conn.close()
-
-# def gen_prompt(message, value = 70, char="-"):
-#     print("\n")
-#     wrt = " " + message + " "
-#     print(wrt.center(value, char))
-#     print("\n")
 
 def gen_prompt(message, value=70, char="-"):
     wrt = " " + message + " "
@@ -65,24 +59,37 @@ def check_internet_connection():
         pass  
     return False  
 
+def download_image(url, filename, article_no):
+    try:
+        response = requests.get(url)
+        with open(filename, "wb") as f:
+            f.write(response.content)
+        return f"Article {article_no}"
+    except Exception as e:
+        return f"Failed to download {filename}: {e}"
+
+def download_image(url, filename, article_no):
+    try:
+        response = requests.get(url)
+        with open(filename, "wb") as f:
+            f.write(response.content)
+        return f"Article {article_no}"
+    except Exception as e:
+        return f"Failed to download {filename}: {e}"
+
 def download_images(image_urls, folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         sys.stdout.write("\n")
 
-    for i, url in enumerate(image_urls, 1):
-        try:
-            response = requests.get(url)
-            image_path = os.path.join(folder_path, f"article_{i}.jpg")
-            with open(image_path, "wb") as f:
-                f.write(response.content)
-                # print(f"Downloaded article_{i}.jpg")
-                sys.stdout.write(f"\rDownloaded article_{i}.jpg")
-        except Exception as e:
-            print(f"Failed to download article_{url}: {e}")
-    sys.stdout.write("\033[K")  # Clear the line
-    sys.stdout.write("\033[F")  # Move cursor up one line
-    sys.stdout.write("\033[K")  # Clear the line
+    with ThreadPoolExecutor(max_workers=20) as executor:  
+        for i, url in enumerate(image_urls, 1):
+            filename = os.path.join(folder_path, f"article_{i}.jpg")
+            executor.submit(download_image, url, filename, i)
+        sys.stdout.write(f"{len(image_urls)} articles")
+    sys.stdout.write("\033[K")  
+    sys.stdout.write("\033[F")  
+    sys.stdout.write("\033[K") 
 
 def scrape(year: str, month: str, day: str):
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
@@ -116,7 +123,14 @@ def scrape(year: str, month: str, day: str):
             page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
             page = driver.find_element_by_xpath(page_element)
             page.click()
-            time.sleep(2)
+            # time.sleep(2)
+            try:
+                image_elements = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
+                )
+            except:
+                print("Error: Paper images didn't load")
+                pass
         
         gen_prompt(f"Accessed Page {i}")
         
@@ -171,13 +185,14 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
         month = str(current_date.month).zfill(2)
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
+        no_exception_found = 1
         if date_str not in scraped_dates:
-            # sys.stdout.write(f"\rYear: {year}, Month: {month}, Day: {day}")
             gen_prompt(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}", value=100)
             try: 
                 scrape(year, month, day) 
                 count += 1
             except Exception as e:
+                no_exception_found = 0
                 print("Scraping error: ", e)
                 print(f"Error on: Year: {year}, Month: {month}, Day: {day}")  
                 if check_internet_connection():
@@ -186,11 +201,11 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
                     print("No internet connection.") 
                     break
                 print("Page Unavailable: Redirecting...")
-                time.sleep(2)
+                # time.sleep(2)
                 pass
-            
-            scraped_dates.add(date_str)
-            save_scraped_dates({date_str}, file_path)
+            if no_exception_found:
+                scraped_dates.add(date_str)
+                save_scraped_dates({date_str}, file_path)
             current_date += timedelta(days=1)
             # time.sleep(0.1)
         else:
@@ -219,7 +234,6 @@ def extract_article(img_location):
 
     if len(raw_output) > 1:
         num_words = len(raw_output.split())
-        # print(raw_output)
 
         article_title, article = separate_article_title(raw_output)
         print("Article Title: ", article_title)
@@ -245,9 +259,8 @@ def extract_all_and_store(year, month, day):
                 print("Did not initiate data entry:", e)
                 pass
     print(f"Success: Article Extraction Completed! JUGANTOR-{year}/{month}/{day}")
-    # conn.close()
 
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2016", "03", "08")
-    scrape_all_range("2016", "05", "01", "2016", "12", "31")
+    scrape_all_range("2016", "06", "06", "2016", "12", "31")

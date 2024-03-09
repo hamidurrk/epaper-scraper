@@ -6,6 +6,7 @@ import sys
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 import sqlite3
 from PIL import Image    
@@ -54,7 +55,16 @@ def gen_prompt(message, value=70, char="-"):
     wrt = " " + message + " "
     sys.stdout.write(f"{wrt.center(value, char)}")
     sys.stdout.flush()
-    
+
+def check_internet_connection():
+    try:
+        response = requests.get("https://www.google.com", timeout=5)
+        if response.status_code == 200:
+            return True  
+    except requests.RequestException:
+        pass  
+    return False  
+
 def download_images(image_urls, folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -85,7 +95,7 @@ def scrape(year: str, month: str, day: str):
             EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
         )
     except:
-        print("\nCouldn't open URL")
+        print(f"\nCouldn't open URL")
         pass
         
     ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
@@ -152,6 +162,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     pbar = tqdm(total=total_iterations, desc="Progress", unit="paper",)
     current_date = start_date
     scraped_dates = load_scraped_dates(file_path)
+    count = 0
     while current_date <= end_date:
         os.system('cls' if os.name == 'nt' else 'clear')
         pbar.update(1)
@@ -165,8 +176,17 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
             gen_prompt(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}", value=100)
             try: 
                 scrape(year, month, day) 
+                count += 1
             except Exception as e:
-                print("Scraping error: ", e)   
+                print("Scraping error: ", e)
+                print(f"Error on: Year: {year}, Month: {month}, Day: {day}")  
+                if check_internet_connection():
+                    print("Internet connection is available.")
+                else:
+                    print("No internet connection.") 
+                    break
+                print("Page Unavailable: Redirecting...")
+                time.sleep(2)
                 pass
             
             scraped_dates.add(date_str)
@@ -180,7 +200,10 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
             current_date += timedelta(days=1)
             # time.sleep(0.1)
     pbar.close()
-    print(f"\nScraping finished from {start_date} to {end_date}")
+    if count == total_iterations:
+        print(f"\nScraping finished from {start_date} to {end_date}")
+    else: 
+        print(f"\nScraping finished from {start_date} to {date_str}")
 
 def separate_article_title(text):
     lines = text.split('\n', 1)
@@ -227,4 +250,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2016", "03", "08")
-    scrape_all_range("2016", "03", "15", "2016", "04", "15")
+    scrape_all_range("2016", "05", "01", "2016", "12", "31")

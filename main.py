@@ -59,15 +59,18 @@ def check_internet_connection():
         pass  
     return False  
 
-def download_image(url, filename, article_no):
-    try:
-        response = requests.get(url)
-        with open(filename, "wb") as f:
-            f.write(response.content)
-        return f"Article {article_no}"
-    except Exception as e:
-        return f"Failed to download {filename}: {e}"
+def load_scraped_dates(file_path):
+    scraped_dates = set()
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            for line in file:
+                scraped_dates.add(line.strip())
+    return scraped_dates
 
+def save_scraped_dates(scraped_dates, file_path):
+    with open(file_path, "a") as file:
+        for date in scraped_dates:
+            file.write(date + "\n")
 def download_image(url, filename, article_no):
     try:
         response = requests.get(url)
@@ -144,19 +147,6 @@ def scrape(year: str, month: str, day: str):
     print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
     gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
     # driver.quit()
-    
-def load_scraped_dates(file_path):
-    scraped_dates = set()
-    if os.path.exists(file_path):
-        with open(file_path, "r") as file:
-            for line in file:
-                scraped_dates.add(line.strip())
-    return scraped_dates
-
-def save_scraped_dates(scraped_dates, file_path):
-    with open(file_path, "a") as file:
-        for date in scraped_dates:
-            file.write(date + "\n")
             
 def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
     file_path = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates.txt")
@@ -263,4 +253,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2016", "03", "08")
-    scrape_all_range("2016", "06", "06", "2016", "12", "31")
+    scrape_all_range("2017", "04", "20", "2020", "12", "31")

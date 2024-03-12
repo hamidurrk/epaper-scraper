@@ -253,4 +253,4 @@ def extract_all_and_store(year, month, day):
 if __name__ == "__main__":
     # scrape("2020", "01", "29")
     # extract_all_and_store("2016", "03", "08")
-    scrape_all_range("2017", "04", "20", "2020", "12", "31")
+    scrape_all_range("2021", "01", "01", "2022", "07", "31")

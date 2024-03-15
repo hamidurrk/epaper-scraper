@@ -86,7 +86,7 @@ def scrape_old_jugantor(year: str, month: str, day: str):
                 EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
             )
         except:
-            pass
+            break
               
         if i != 1:
             next_page_link = driver.find_element_by_xpath("//a[@onclick='goToNextPage();return false;']")
@@ -105,7 +105,7 @@ def scrape_old_jugantor(year: str, month: str, day: str):
                 )
             except Exception as e:
                 print("Error: Paper images didn't load", e)
-                pass
+                break
         
         gen_prompt(f"Accessed Page {i}")
         

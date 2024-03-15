@@ -1,5 +1,6 @@
 from scraping import *
+from extraction import *
 
 if __name__ == "__main__":
-    # scrape_all_range("2021", "01", "01", "2022", "07", "31")
-    scrape_old_jugantor("2012", "01","01")
+    scrape_all_range("2013", "03", "04", "2015", "12", "31")
+    # extract_all_and_store("2022", "01", "01")

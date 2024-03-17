@@ -228,4 +228,4 @@
             document.body.appendChild(backdrop);
             document.body.style.overflow = 'hidden';
             document.body.style.position = 'fixed';
-            document.body.style.height …
+        }

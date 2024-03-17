@@ -1,6 +1,6 @@
 # Epaper Scraper
 
-This is a Python-based web scraper for extracting data from online newspapers. Tested on [Jugantor Newspaper](https://epaper.jugantor.com/) from 2012 to 2024.
+This is a Python-based web scraper for extracting data from online newspapers. Tested on [Jugantor Newspaper](https://epaper.jugantor.com/) from 2012 to 2024 in a Windows 11 machine.
 
 ## Installation
 
@@ -8,7 +8,9 @@ This is a Python-based web scraper for extracting data from online newspapers. T
 
 Before installing the scraper, ensure you have the following prerequisites:
 
+- A Windows machine (Tested on Windows 11)
 - [Python 3.12.0](https://www.python.org/downloads/release/python-3120/) installed on your system 
+- [Firefox](https://www.mozilla.org/en-US/firefox/new/) installed as your browser. Make sure to install it in `C:\Program Files\Mozilla Firefox\`.
 
 ### Installation Steps
 
@@ -32,12 +34,6 @@ Before installing the scraper, ensure you have the following prerequisites:
     venv\Scripts\activate
     ```
 
-    - On macOS/Linux:
-
-    ```bash
-    source myenv/bin/activate
-    ```
-
 6. Install the required Python packages using pip:
 
     ```bash
@@ -57,7 +53,9 @@ Before installing the scraper, ensure you have the following prerequisites:
 
 To use the epaper-scraper, follow these steps:
 
-1. Run the main script from [src]() directory `main.py`:
+1. Click and run `start_firefox.bat` file. Alternatively run the commands from `cmd.txt`. This will initilize a firefox browser instance. 
+
+1. Adjust parameters of the function in `main.py` and run:
 
     ```bash
     python main.py

@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 import pytesseract
+import concurrent.futures
 from datetime import date, timedelta
 from tqdm import tqdm
 from databbase import *
@@ -18,6 +19,60 @@ def separate_article_title(text):
     else:
         return text, ""
 
+# def extract_article(img_location):
+#     raw_output = pytesseract.pytesseract.image_to_string(Image.open(img_location), lang='ben')
+
+#     if len(raw_output) > 1:
+#         num_words = len(raw_output.split())
+
+#         article_title, article = separate_article_title(raw_output)
+#         # print("Article Title: ", article_title)
+#         # print("Article:")
+#         # print(article)
+#         # print ("Number of Words: ", num_words)
+#         return article_title, article, num_words, raw_output
+#     else:
+#         print("Could not find recognizable characters")
+#         return None
+        
+# def process_image(img_location, year, month, day, i, j):
+#     try:
+#         conn = sqlite3.connect('jugantor.db')
+#         c = conn.cursor()
+
+#         extracted_obj = extract_article(img_location)
+#         if extracted_obj is not None:
+#             article_title, article, num_words, raw_output = extracted_obj
+#             with conn:
+#                 c.execute("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+#                           (year, f"{year}-{month}-{day}", f"{j}: {article_title}", article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"))
+#             print("Data inserted successfully")
+#             return article_title, article, num_words, raw_output
+#         else:
+#             print("Data is a NoneType object")
+#     except Exception as e:
+#         print("Did not initiate data entry:", e)
+#     finally:
+#         conn.close()
+
+# def extract_all_and_store(year, month, day):
+#     gen_prompt(f"Started: jugantor/{year}/{month}/{day}")
+#     num_pages = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day)))
+#     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+#         futures = []
+#         for i in range(1, num_pages + 1):
+#             num_articles = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")))
+#             for j in range(1, num_articles + 1):
+#                 img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
+#                 print(f"jugantor/{year}/{month}/{day}/page_{i}/article_{j}.jpg")
+#                 futures.append(executor.submit(process_image, img_location, year, month, day, i, j))
+#         for future in concurrent.futures.as_completed(futures):
+#             result = future.result()
+#             if result:
+#                 # article_title, article, num_words, raw_output = result
+#                 # print(f"{article_title}: {num_words} words")
+#                 pass
+
 def extract_article(img_location):
     raw_output = pytesseract.pytesseract.image_to_string(Image.open(img_location), lang='ben')
 
@@ -25,25 +80,25 @@ def extract_article(img_location):
         num_words = len(raw_output.split())
 
         article_title, article = separate_article_title(raw_output)
-        print("Article Title: ", article_title)
-        print("Article:")
-        print(article)
-        print ("Number of Words: ", num_words)
+        # print("Article Title: ", article_title)
+        # print("Article:")
+        # print(article)
+        # print ("Number of Words: ", num_words)
         return article_title, article, num_words, raw_output
     else:
         print("Could not find recognizable characters.")
         return None
-
+    
 def extract_all_and_store(year, month, day):
     num_pages = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day)))
     for i in range(1, num_pages + 1):
         num_articles = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")))
         for j in range(1, num_articles + 1):
             img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
-            print(f"jugantor/{year}/{month}/{day}/page_{i}/article_{j}.jpg")
+            print(img_location)
             try: 
                 article_title, article, num_words, raw_output = extract_article(img_location)
-                # insert_to_jugantor(year, f"{year}-{month}-{day}", article_title, article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
+                insert_to_jugantor(year, f"{year}-{month}-{day}", f"{j}: {article_title}", article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
             except Exception as e:
                 print("Did not initiate data entry:", e)
                 pass
@@ -76,27 +131,14 @@ def extract_all_range(start_year, start_month, start_day, end_year, end_month, e
         month = str(current_date.month).zfill(2)
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
-        no_exception_found = 1
         if date_str not in scraped_dates:
-            gen_prompt(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}", value=100)
-            try: 
-                # scrape_old_jugantor(year, month, day) 
-                count += 1
-            except Exception as e:
-                no_exception_found = 0
-                print("Scraping error: ", e)
-                print(f"Error on: Year: {year}, Month: {month}, Day: {day}")  
-                if check_internet_connection():
-                    print("Internet connection is available.")
-                else:
-                    print("No internet connection.") 
-                    break
-                print("Page Unavailable: Redirecting...")
-                # time.sleep(2)
-                pass
-            if no_exception_found:
-                scraped_dates.add(date_str)
-                save_scraped_dates({date_str}, file_path)
+            gen_prompt(f"Attempting New Extraction | Year: {year}, Month: {month}, Day: {day}", value=100)
+            
+            extract_all_and_store(year, month, day) 
+            count += 1
+        
+            scraped_dates.add(date_str)
+            save_scraped_dates({date_str}, file_path)
             current_date += timedelta(days=1)
             # time.sleep(0.1)
         else:
@@ -107,7 +149,7 @@ def extract_all_range(start_year, start_month, start_day, end_year, end_month, e
             # time.sleep(0.1)
     pbar.close()
     if count == total_iterations:
-        print(f"\nScraping finished from {start_date} to {end_date}")
+        print(f"\nExtraction finished from {start_date} to {end_date}")
     else: 
-        print(f"\nScraping finished from {start_date} to {date_str}")
+        print(f"\nExtraction finished from {start_date} to {date_str}")
   

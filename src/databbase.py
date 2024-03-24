@@ -9,9 +9,8 @@ def create_table():
                 year INTEGER,
                 date INTEGER,
                 article_title TEXT,
-                article TEXT,
+                article_body TEXT,
                 wordcount INTEGER,
-                pagenum INTEGER,
                 url TEXT
                 )""")
     conn.close()
@@ -42,4 +41,4 @@ def drop_table(table_name):
         c.execute(f"DROP TABLE IF EXISTS {table_name}")
     print(f"Table {table_name} dropped successfully")
     
-delete_all_rows("jugantor")
+# create_table()

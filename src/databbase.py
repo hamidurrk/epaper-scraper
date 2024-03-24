@@ -42,3 +42,4 @@ def drop_table(table_name):
     print(f"Table {table_name} dropped successfully")
     
 # create_table()
+# delete_all_rows("jugantor")

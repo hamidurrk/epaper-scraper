@@ -12,7 +12,7 @@ def check_internet_connection():
         pass  
     return False  
 
-def load_scraped_dates(file_path):
+def load_info(file_path):
     scraped_dates = set()
     if os.path.exists(file_path):
         with open(file_path, "r") as file:
@@ -20,7 +20,7 @@ def load_scraped_dates(file_path):
                 scraped_dates.add(line.strip())
     return scraped_dates
 
-def save_scraped_dates(scraped_dates, file_path):
+def save_info(scraped_dates, file_path):
     with open(file_path, "a") as file:
         for date in scraped_dates:
             file.write(date + "\n")

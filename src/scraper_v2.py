@@ -11,8 +11,9 @@ from bs4 import BeautifulSoup
 from utils import load_info, save_info, check_internet_connection, gen_prompt
 
 newspaper_base_url = 'https://www.jugantor.com/'
-newspaper_archive_base_url = 'https://www.jugantor.com/archive/'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+test_date_str = date(2016, 3, 4)
 
 async def insert_articles(articles):
     try:
@@ -29,19 +30,23 @@ async def insert_articles(articles):
 
 
 async def crawl(date_str):
-    date_str = date_str
-    # print(date_str)
+    print(date_str)
+    if date_str.year >= 2018:
+        newspaper_archive_base_url = 'https://www.jugantor.com/archive/'    
+    else:
+        newspaper_archive_base_url = 'https://www.jugantor.com/news-archive/'
     url = newspaper_archive_base_url + str(date_str.year) + "/" + str(date_str.month) + "/" + str(date_str.day)
-
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             archive_soup = BeautifulSoup(await response.text(), "lxml")
 
-    # print(url)
+    # print(response.text())
     links = []
     links_tag = archive_soup.select('#archive-block .archive-newslist ul li a')
+    # print(links_tag)
 
     for link_tag in links_tag:
+        link_tag['href']
         if 'today' in link_tag['href'] or 'old' in link_tag['href']:
             links.append(link_tag['href'])
     print(f"\n{len(links)} articles")
@@ -56,11 +61,16 @@ async def crawl(date_str):
     await insert_articles(articles)
 
 
-async def get_article(url, articles, date_str):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            article_data = await response.text()
-
+async def get_article(url, articles, date):
+    # print(url)
+    # print(type(url))
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                article_data = await response.text()
+                # print(f"response{await response)}")
+    except Exception as e:
+        print("Error: ", e)
     soup = BeautifulSoup(article_data, "lxml")
 
     article_title = soup.find(id='news-title').get_text().strip()
@@ -70,8 +80,8 @@ async def get_article(url, articles, date_str):
     article_body = re.sub(r'\s+', ' ', article_body)
 
     num_words = len(article_body.split())
-
-    articles.append((date_str.year, date_str, article_title, article_body, num_words, url))
+    # print(f"\n{num_words} words")
+    articles.append((date.year, date, article_title, article_body, num_words, url))
 
 
 async def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):

@@ -286,7 +286,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     
     pbar = tqdm(total=total_iterations, desc="Progress", unit="paper",)
     current_date = start_date
-    scraped_dates = load_scraped_dates(file_path)
+    scraped_dates = load_info(file_path)
     count = 0
     while current_date <= end_date:
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -316,7 +316,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
                 pass
             if no_exception_found:
                 scraped_dates.add(date_str)
-                save_scraped_dates({date_str}, file_path)
+                save_info({date_str}, file_path)
             current_date += timedelta(days=1)
             # time.sleep(0.1)
         else:

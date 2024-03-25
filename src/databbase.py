@@ -43,3 +43,4 @@ def drop_table(table_name):
     
 # create_table()
 # delete_all_rows("jugantor")
+# drop_table("jugantor")

@@ -133,7 +133,7 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
                 save_info({date_str}, file_path)
             # time.sleep(0.1)
         else:
-            os.system('cls' if os.name == 'nt' else 'clear')
+            # os.system('cls' if os.name == 'nt' else 'clear')
             pbar.update(1)
             print(f"{date_str} already scraped.")
             current_date += timedelta(days=1)

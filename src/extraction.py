@@ -10,92 +10,72 @@ from utils import *
 
 pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_PATH = os.path.join(BASE_DIR, 'jugantor.db')
 
-def preprocess_image(img_path):
-    img = Image.open(img_path)
-
+def preprocess_image(img):
     current_dpi = img.info.get('dpi', (72, 72))  # Default DPI is 72
     scale_factor = 400 / current_dpi[0]
-
     new_width = int(img.width * scale_factor)
     new_height = int(img.height * scale_factor)
-
     img = img.resize((new_width, new_height), resample=Image.LANCZOS)
-
     img = img.filter(ImageFilter.MedianFilter(size=3))  # Noise reduction
-
     enhancer = ImageEnhance.Contrast(img)
     img = enhancer.enhance(6)
-
     enhancer = ImageEnhance.Brightness(img)
     img = enhancer.enhance(1.2)
-
     img = img.point(lambda p: p > 170 and 255)
-
     return img
 
 def separate_article_title(text):
     lines = text.split('\n', 1)
     if len(lines) > 1:
         first_line = lines[0]
-        remaining_text = text
-        return first_line, remaining_text
+        return first_line, text
     else:
-        return text, ""
+        return "", ""
 
-def extract_article(img_location):
-    raw_output = pytesseract.pytesseract.image_to_string(preprocess_image(img_location), lang='ben')
+def extract_article(img_path):
+    img = Image.open(img_path)
+    img = preprocess_image(img)
+    raw_output = pytesseract.image_to_string(img, lang='ben')
+    return separate_article_title(raw_output)
 
-    if len(raw_output) > 1:
-        num_words = len(raw_output.split())
-
-        article_title, article = separate_article_title(raw_output)
-        # print("Article Title: ", article_title)
-        # print("Article:")
-        # print(article)
-        # print ("Number of Words: ", num_words)
-        return article_title, article, num_words, raw_output
-    else:
-        print("Could not find recognizable characters")
-        return None
-        
-def process_image(img_location, year, month, day, i, j):
+def batch_insert_articles(articles):
     try:
-        conn = sqlite3.connect('jugantor.db')
+        conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
-
-        extracted_obj = extract_article(img_location)
-        if extracted_obj is not None:
-            article_title, article, num_words, raw_output = extracted_obj
-            with conn:
-                c.execute("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                          (year, f"{year}-{month}-{day}", f"{j}: {article_title}", article, num_words, i, f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"))
-            print("Data inserted successfully")
-            return article_title, article, num_words, raw_output
-        else:
-            print("Data is a NoneType object")
+        with conn:
+            c.executemany("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", articles)
+        print("Batch insertion successful")
     except Exception as e:
-        print("Did not initiate data entry:", e)
+        print("Error during batch insertion:", e)
     finally:
         conn.close()
+
+def process_image(img_location, year, month, day):
+    article_title, article = extract_article(img_location)
+    if article_title:
+        return (year, f"{year}-{month}-{day}", article_title, article, len(article.split()), f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php")
 
 def extract_all_and_store(year, month, day):
     gen_prompt(f"Started: jugantor/{year}/{month}/{day}")
     num_pages = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day)))
+    articles = []
+    articles_data = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        futures = []
         for i in range(1, num_pages + 1):
             num_articles = len(os.listdir(os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")))
             for j in range(1, num_articles + 1):
                 img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
-                print(f"jugantor/{year}/{month}/{day}/page_{i}/article_{j}.jpg")
-                futures.append(executor.submit(process_image, img_location, year, month, day, i, j))
-        for future in concurrent.futures.as_completed(futures):
+                # print(f"jugantor/{year}/{month}/{day}/page_{i}/article_{j}.jpg")
+                articles.append((executor.submit(process_image, img_location, year, month, day), (year, month, day)))
+        print(articles)
+        for future, date_info in tqdm(articles, desc=f"Processing images for {year}-{month}-{day}"):
             result = future.result()
             if result:
-                # article_title, article, num_words, raw_output = result
-                # print(f"{article_title}: {num_words} words")
-                pass
+                articles_data.append(result)
+        print(articles_data)
+        # batch_insert_articles(articles_data)
 
 # def extract_article(img_location):
 #     raw_output = pytesseract.pytesseract.image_to_string(Image.open(img_location), lang='ben')
@@ -178,7 +158,7 @@ def extract_all_and_store(year, month, day):
 #         print(f"\nExtraction finished from {start_date} to {date_str}")
   
 start_time = time.time()
-extract_all_and_store("2024", "03", "16")
+extract_all_and_store("2012", "01", "01")
 end_time = time.time()
 execution_time = end_time - start_time
 

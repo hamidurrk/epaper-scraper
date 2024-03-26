@@ -1,13 +1,9 @@
-import asyncio
 import os
 import re
 import sys
 import sqlite3
-import aiohttp
-import tqdm
+import requests
 import time
-from aiohttp import ClientSession
-from aiohttp.client_exceptions import ClientConnectorError
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from utils import load_info, save_info, check_internet_connection, gen_prompt
@@ -17,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 test_date_str = date(2016, 3, 4)
 
-async def insert_articles(articles):
+def insert_articles(articles):
     try:
         conn = sqlite3.connect('jugantor.db')
         c = conn.cursor()
@@ -30,52 +26,47 @@ async def insert_articles(articles):
     finally:
         conn.close()
 
-
-async def crawl(date_str):
+def crawl(date_str):
     print(date_str)
     if date_str.year >= 2018:
         newspaper_archive_base_url = 'https://www.jugantor.com/archive/'    
     else:
         newspaper_archive_base_url = 'https://www.jugantor.com/news-archive/'
     url = newspaper_archive_base_url + str(date_str.year) + "/" + str(date_str.month) + "/" + str(date_str.day)
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            archive_soup = BeautifulSoup(await response.text(), "lxml")
+    response = requests.get(url)
+    archive_soup = BeautifulSoup(response.text, "lxml")
 
-    # print(response.text())
     links = []
     links_tag = archive_soup.select('#archive-block .archive-newslist ul li a')
-    # print(links_tag)
 
     for link_tag in links_tag:
-        href = link_tag['href']
-        if 'today' in href or 'old' in href:
-            # Replace 'http' with 'https' in the href attribute
-            href = href.replace('http://', 'https://')
-            links.append(href)
+        link_tag['href']
+        if 'today' in link_tag['href'] or 'old' in link_tag['href']:
+            links.append(link_tag['href'])
     print(f"\n{len(links)} articles")
 
-    tasks = []
     articles = []
     for link in links:
-        task = asyncio.create_task(get_article(link, articles, date_str))
-        tasks.append(task)
+        get_article(link, articles, date_str)
 
-    await asyncio.gather(*tasks)
-    # await insert_articles(articles)
+    # insert_articles(articles)
 
-
-async def get_article(url, articles, date):
+def get_article(url, articles, date):
     print(url)
-    # print(type(url))
+    print(type(url))
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                article_data = await response.text()
-                # print(f"response{await response)}")
+        session = requests.Session()
+        response = session.get(url, allow_redirects=False)
+        redirect_url = response.headers['Location']
+        # now we can manually inspect and fix the redirect url if necessary and then follow it:
+        response2 = session.get(redirect_url, allow_redirects=False)
+        # response = requests.get(url)
+        # article_data = response.text
+        print(f"response: {response.headers['Location']}")
+        print(f"response: {response2}")
     except Exception as e:
         print("Error: ", e)
-    soup = BeautifulSoup(article_data, "lxml")
+    soup = BeautifulSoup(response2.text, "lxml")
 
     article_title = soup.find(id='news-title').get_text().strip()
     article_title = re.sub(r'\s+', ' ', article_title)
@@ -84,19 +75,16 @@ async def get_article(url, articles, date):
     article_body = re.sub(r'\s+', ' ', article_body)
 
     num_words = len(article_body.split())
-    print(article_title)
     print(f"\n{num_words} words")
     articles.append((date.year, date, article_title, article_body, num_words, url))
 
-
-async def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
+def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
     file_path = os.path.join(BASE_DIR, "downloaded_articles", "bs4_scraped_dates.txt")
     start_date = date(start_year, start_month, start_day)
     end_date = date(end_year, end_month, end_day)
 
     total_iterations = (end_date - start_date).days + 1
 
-    pbar = tqdm.tqdm(total=total_iterations, desc="Progress", unit="paper")
     current_date = start_date
     scraped_dates = load_info(file_path)
     count = 0
@@ -111,8 +99,7 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
         if date_str not in scraped_dates:
             print(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}")
             try:
-                await crawl(current_date)
-                pbar.update(1)
+                crawl(current_date)
                 count += 1
             except Exception as e:
                 no_exception_found = 0
@@ -133,16 +120,13 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
             # time.sleep(0.1)
         else:
             os.system('cls' if os.name == 'nt' else 'clear')
-            pbar.update(1)
             print(f"{date_str} already scraped.")
             current_date += timedelta(days=1)
             # time.sleep(0.1)
-    pbar.close()
     if count == total_iterations:
         print(f"\nScraping finished from {start_date} to {end_date}")
     else:
         print(f"\nScraping finished from {start_date} to {date_str}")
 
-
 # crawl(start_date)
-asyncio.run(scrape_all_range(2016, 1, 1, 2024, 3, 20))
+scrape_all_range(2016, 1, 1, 2024, 3, 20)

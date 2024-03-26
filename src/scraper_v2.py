@@ -62,11 +62,11 @@ async def crawl(date_str):
         tasks.append(task)
 
     await asyncio.gather(*tasks)
-    # await insert_articles(articles)
+    await insert_articles(articles)
 
 
 async def get_article(url, articles, date):
-    print(url)
+    # print(url)
     # print(type(url))
     try:
         async with aiohttp.ClientSession() as session:
@@ -76,17 +76,18 @@ async def get_article(url, articles, date):
     except Exception as e:
         print("Error: ", e)
     soup = BeautifulSoup(article_data, "lxml")
+    article_title_obj = soup.find(id='news-title')
+    if article_title_obj is not None:
+        article_title = article_title_obj.get_text().strip()
+        article_title = re.sub(r'\s+', ' ', article_title)
 
-    article_title = soup.find(id='news-title').get_text().strip()
-    article_title = re.sub(r'\s+', ' ', article_title)
+        article_body = soup.find(id='myText').get_text().strip()
+        article_body = re.sub(r'\s+', ' ', article_body)
 
-    article_body = soup.find(id='myText').get_text().strip()
-    article_body = re.sub(r'\s+', ' ', article_body)
-
-    num_words = len(article_body.split())
-    print(article_title)
-    print(f"\n{num_words} words")
-    articles.append((date.year, date, article_title, article_body, num_words, url))
+        num_words = len(article_body.split())
+        # print(article_title)
+        # print(f"\n{num_words} words")
+        articles.append((date.year, date, article_title, article_body, num_words, url))
 
 
 async def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
@@ -145,4 +146,4 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
 
 
 # crawl(start_date)
-asyncio.run(scrape_all_range(2016, 1, 1, 2024, 3, 20))
+asyncio.run(scrape_all_range(2016, 1, 2, 2018, 1, 1))

@@ -36,7 +36,8 @@ async def crawl(date_str):
     if date_str.year >= 2018:
         newspaper_archive_base_url = 'https://www.jugantor.com/archive/'    
     else:
-        newspaper_archive_base_url = 'https://www.jugantor.com/news-archive/'
+        # newspaper_archive_base_url = 'https://www.jugantor.com/news-archive/'
+        newspaper_archive_base_url = 'https://www.jugantor.com/old/'
     url = newspaper_archive_base_url + str(date_str.year) + "/" + str(date_str.month) + "/" + str(date_str.day)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -146,4 +147,4 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
 
 
 # crawl(start_date)
-asyncio.run(scrape_all_range(2016, 1, 2, 2018, 1, 1))
+asyncio.run(scrape_all_range(2013, 6, 1, 2015, 12, 31))

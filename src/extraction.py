@@ -11,6 +11,7 @@ from utils import *
 pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_PATH = os.path.join(BASE_DIR, 'jugantor.db')
+custom_config = r'--oem 1 --psm 6 -c tessedit_use_opencl=true'
 
 def preprocess_image(img):
     current_dpi = img.info.get('dpi', (72, 72))  # Default DPI is 72
@@ -37,7 +38,7 @@ def separate_article_title(text):
 def extract_article(img_path):
     img = Image.open(img_path)
     img = preprocess_image(img)
-    raw_output = pytesseract.image_to_string(img, lang='ben')
+    raw_output = pytesseract.image_to_string(img, lang='ben', config=custom_config)
     return separate_article_title(raw_output)
 
 def batch_insert_articles(articles):
@@ -45,7 +46,7 @@ def batch_insert_articles(articles):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         with conn:
-            c.executemany("INSERT INTO jugantor (year, date, article_title, article, wordcount, pagenum, url) VALUES (?, ?, ?, ?, ?, ?, ?)", articles)
+            c.executemany("INSERT INTO jugantor (year, date, article_title, article_body, wordcount, url) VALUES (?, ?, ?, ?, ?, ?)", articles)
         print("Batch insertion successful")
     except Exception as e:
         print("Error during batch insertion:", e)
@@ -69,13 +70,13 @@ def extract_all_and_store(year, month, day):
                 img_location = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}", f"article_{j}.jpg")
                 # print(f"jugantor/{year}/{month}/{day}/page_{i}/article_{j}.jpg")
                 articles.append((executor.submit(process_image, img_location, year, month, day), (year, month, day)))
-        print(articles)
+        # print(articles)
         for future, date_info in tqdm(articles, desc=f"Processing images for {year}-{month}-{day}"):
             result = future.result()
             if result:
                 articles_data.append(result)
-        print(articles_data)
-        # batch_insert_articles(articles_data)
+        # print(articles_data)
+        batch_insert_articles(articles_data)
 
 # def extract_article(img_location):
 #     raw_output = pytesseract.pytesseract.image_to_string(Image.open(img_location), lang='ben')
@@ -108,59 +109,59 @@ def extract_all_and_store(year, month, day):
 #                 pass
 #     print(f"Success: Article Extraction Completed! JUGANTOR-{year}/{month}/{day}")
     
-# def extract_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
-#     file_path = os.path.join(BASE_DIR, "downloaded_articles", "extracted_dates.txt")
-#     start_year = int(start_year)
-#     start_month = int(start_month)
-#     start_day = int(start_day)
+def extract_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
+    file_path = os.path.join(BASE_DIR, "downloaded_articles", "bs4__scraped_dates.txt")
+    start_year = int(start_year)
+    start_month = int(start_month)
+    start_day = int(start_day)
 
-#     end_year = int(end_year)
-#     end_month = int(end_month)
-#     end_day = int(end_day)
+    end_year = int(end_year)
+    end_month = int(end_month)
+    end_day = int(end_day)
 
-#     start_date = date(start_year, start_month, start_day)
-#     end_date = date(end_year, end_month, end_day)
+    start_date = date(start_year, start_month, start_day)
+    end_date = date(end_year, end_month, end_day)
 
-#     total_iterations = (end_date - start_date).days + 1
+    total_iterations = (end_date - start_date).days + 1
     
-#     pbar = tqdm(total=total_iterations, desc="Progress", unit="paper",)
-#     current_date = start_date
-#     scraped_dates = load_scraped_dates(file_path)
-#     count = 0
-#     while current_date <= end_date:
-#         os.system('cls' if os.name == 'nt' else 'clear')
-#         pbar.update(1)
-#         sys.stdout.write("\n\n")
-#         year = str(current_date.year)
-#         month = str(current_date.month).zfill(2)
-#         day = str(current_date.day).zfill(2)
-#         date_str = f"{year}-{month}-{day}"
-#         if date_str not in scraped_dates:
-#             gen_prompt(f"Attempting New Extraction | Year: {year}, Month: {month}, Day: {day}", value=100)
+    pbar = tqdm(total=total_iterations, desc="Progress", unit="paper",)
+    current_date = start_date
+    scraped_dates = load_info(file_path)
+    count = 0
+    while current_date <= end_date:
+        # os.system('cls' if os.name == 'nt' else 'clear')
+        pbar.update(1)
+        sys.stdout.write("\n\n")
+        year = str(current_date.year)
+        month = str(current_date.month).zfill(2)
+        day = str(current_date.day).zfill(2)
+        date_str = f"{year}-{month}-{day}"
+        if date_str not in scraped_dates:
+            gen_prompt(f"Attempting New Extraction | Year: {year}, Month: {month}, Day: {day}", value=100)
             
-#             extract_all_and_store(year, month, day) 
-#             count += 1
+            extract_all_and_store(year, month, day) 
+            count += 1
         
-#             scraped_dates.add(date_str)
-#             save_scraped_dates({date_str}, file_path)
-#             current_date += timedelta(days=1)
-#             # time.sleep(0.1)
-#         else:
-#             os.system('cls' if os.name == 'nt' else 'clear')
-#             pbar.update(1)
-#             print(f"{date_str} already scraped.")
-#             current_date += timedelta(days=1)
-#             # time.sleep(0.1)
-#     pbar.close()
-#     if count == total_iterations:
-#         print(f"\nExtraction finished from {start_date} to {end_date}")
-#     else: 
-#         print(f"\nExtraction finished from {start_date} to {date_str}")
+            scraped_dates.add(date_str)
+            save_info({date_str}, file_path)
+            current_date += timedelta(days=1)
+            # time.sleep(0.1)
+        else:
+            # os.system('cls' if os.name == 'nt' else 'clear')
+            pbar.update(1)
+            print(f"{date_str} already scraped.")
+            current_date += timedelta(days=1)
+            # time.sleep(0.1)
+    pbar.close()
+    if count == total_iterations:
+        print(f"\nExtraction finished from {start_date} to {end_date}")
+    else: 
+        print(f"\nExtraction finished from {start_date} to {date_str}")
   
-start_time = time.time()
-extract_all_and_store("2012", "01", "01")
-end_time = time.time()
-execution_time = end_time - start_time
+# start_time = time.time()
+# extract_all_and_store("2012", "01", "01")
+# end_time = time.time()
+# execution_time = end_time - start_time
+# print(f"Execution time: {execution_time} seconds")
 
-# Print the execution time
-print(f"Execution time: {execution_time} seconds")
+extract_all_range("2012", "01", "01", "2012", "12", "31")

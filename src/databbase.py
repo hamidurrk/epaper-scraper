@@ -1,5 +1,8 @@
 import sqlite3
+import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_PATH = os.path.join(BASE_DIR, 'jugantor.db')
 conn = sqlite3.connect('jugantor.db')
 
 def create_table():
@@ -40,7 +43,24 @@ def drop_table(table_name):
     with conn:
         c.execute(f"DROP TABLE IF EXISTS {table_name}")
     print(f"Table {table_name} dropped successfully")
+
+def remove_rows_below_wordcount_threshold(table_name, wordcount_threshold):
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    query = f"DELETE FROM {table_name} WHERE wordcount < ?"
     
+    try:
+        c.execute(query, (wordcount_threshold,))
+        conn.commit()
+        print("Rows deleted successfully.")
+    except sqlite3.Error as e:
+        print(f"Error deleting rows: {e}")
+    finally:
+        conn.close()
+        
 # create_table()
 # delete_all_rows("jugantor")
 # drop_table("jugantor")
+
+remove_rows_below_wordcount_threshold("jugantor", 50)

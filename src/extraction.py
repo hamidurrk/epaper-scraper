@@ -5,6 +5,7 @@ import concurrent.futures
 from datetime import date, timedelta
 from tqdm import tqdm
 import time
+from numba import jit, cuda 
 from databbase import *
 from utils import *
 
@@ -29,18 +30,22 @@ def preprocess_image(img):
 
 def separate_article_title(text):
     lines = text.split('\n', 1)
-    if len(lines) > 1:
+    if len(lines) > 1 and len(text.split()) > 50:
         first_line = lines[0]
         return first_line, text
     else:
         return "", ""
-
+        
 def extract_article(img_path):
-    img = Image.open(img_path)
-    img = preprocess_image(img)
-    raw_output = pytesseract.image_to_string(img, lang='ben', config=custom_config)
-    return separate_article_title(raw_output)
-
+    try:
+        img = Image.open(img_path)
+        # img = preprocess_image(img)
+        raw_output = pytesseract.image_to_string(img, lang='ben')
+        return separate_article_title(raw_output)
+    except Exception as e:
+        print("Error during img extraction:", e)
+        return "", ""
+    
 def batch_insert_articles(articles):
     try:
         conn = sqlite3.connect(DATABASE_PATH)
@@ -136,32 +141,39 @@ def extract_all_range(start_year, start_month, start_day, end_year, end_month, e
         month = str(current_date.month).zfill(2)
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
-        if date_str not in scraped_dates:
-            gen_prompt(f"Attempting New Extraction | Year: {year}, Month: {month}, Day: {day}", value=100)
+        try:
+            if date_str not in scraped_dates:
+                gen_prompt(f"Attempting New Extraction | Year: {year}, Month: {month}, Day: {day}", value=100)
+                
+                extract_all_and_store(year, month, day) 
+                count += 1
             
-            extract_all_and_store(year, month, day) 
-            count += 1
-        
-            scraped_dates.add(date_str)
-            save_info({date_str}, file_path)
+                scraped_dates.add(date_str)
+                save_info({date_str}, file_path)
+                current_date += timedelta(days=1)
+                # time.sleep(0.1)
+            else:
+                # os.system('cls' if os.name == 'nt' else 'clear')
+                pbar.update(1)
+                print(f"{date_str} already scraped.")
+                current_date += timedelta(days=1)
+                # time.sleep(0.1)
+        except FileNotFoundError as e:
             current_date += timedelta(days=1)
-            # time.sleep(0.1)
-        else:
-            # os.system('cls' if os.name == 'nt' else 'clear')
-            pbar.update(1)
-            print(f"{date_str} already scraped.")
-            current_date += timedelta(days=1)
-            # time.sleep(0.1)
+            print(f"Error occurred: {e}")
+        except Exception as e:
+            print("Unexpected error occured:", e)
     pbar.close()
     if count == total_iterations:
         print(f"\nExtraction finished from {start_date} to {end_date}")
     else: 
         print(f"\nExtraction finished from {start_date} to {date_str}")
-  
-# start_time = time.time()
-# extract_all_and_store("2012", "01", "01")
-# end_time = time.time()
-# execution_time = end_time - start_time
-# print(f"Execution time: {execution_time} seconds")
 
-extract_all_range("2012", "01", "01", "2012", "12", "31")
+if __name__=="__main__": 
+    # start_time = time.time()
+    # extract_all_and_store("2012", "01", "01")
+    # end_time = time.time()
+    # execution_time = end_time - start_time
+    # print(f"Execution time: {execution_time} seconds")
+
+    extract_all_range("2013", "01", "01", "2013", "05", "31")

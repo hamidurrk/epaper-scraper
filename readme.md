@@ -46,7 +46,7 @@ conda install cudatoolkit
     python -m venv venv
     ```
 
-    - On Windows:
+    On Windows:
 
     ```bash
     venv\Scripts\activate
@@ -81,17 +81,3 @@ To use the epaper-scraper, follow these steps:
 
 3. The scraper will start extracting data from the specified newspaper website and save it to the specified output directory.
 
-
-<!-- Download tesseract exe from https://github.com/UB-Mannheim/tesseract/wiki.
-
-Install this exe in C:\Program Files (x86)\Tesseract-OCR
-
-Open virtual machine command prompt in windows or anaconda prompt.
-
-Run pip install pytesseract
-
-To test if tesseract is installed type in python prompt:
-
-import pytesseract
-
-print(pytesseract) -->

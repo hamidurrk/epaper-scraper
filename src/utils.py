@@ -43,6 +43,7 @@ def gen_prompt(message, value=70, char="-"):
     wrt = " " + message + " "
     sys.stdout.write(f"{wrt.center(value, char)}")
     sys.stdout.flush()
+    sys.stdout.write("\n")
 
 def download_image(url, filename, article_no):
     try:

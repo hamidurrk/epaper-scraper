@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 base_url = f"https://epaper.prothomalo.com/Home/"
 print(f"Accessed Prothom Alo")
-driver.get(base_url)
+# driver.get(base_url)
 
 def scrape_jugantor(year: str, month: str, day: str):
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
@@ -170,10 +170,7 @@ def get_orgid():
         orgid = element.get_attribute("orgid")
         orgid_values.append(orgid)
 
-    print(orgid_values)
     return orgid_values
-     
-
 
 async def fetch_image_urls(session, api_url, area_data):
     async with session.get(api_url, params=area_data) as response:
@@ -200,7 +197,11 @@ async def scrape_page(session, api_url, area_data_list):
         return None
 
 async def main(driver, year, month, day):
-    load_paper(year, month, day)
+    paper_date_element = driver.find_element_by_id("article_list_date_mobile")
+    paper_date = paper_date_element.text
+    time.sleep(0.2)
+    if not compare_dates(paper_date, f"{month}/{day}/{year}"):
+        load_paper(year, month, day)
     while(1):
         try:
             paper_date_element = driver.find_element_by_id("article_list_date_mobile")
@@ -220,38 +221,77 @@ async def main(driver, year, month, day):
     print(num_pages)
         
     
-    # async with aiohttp.ClientSession() as session:
-    #     for i in range(1, num_pages + 1):
-    #         folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
-    #         try:
-    #             image_elements = WebDriverWait(driver, 10).until(
-    #                 EC.presence_of_element_located((By.CLASS_NAME, "view_modal"))
-    #             )
-    #             gen_prompt(f"Accessed Page {i}")
-    #         except:
-    #             print("Error: Paper page didn't load")
-    #             continue
+    async with aiohttp.ClientSession() as session:
+        for i in range(1, num_pages + 1):
+            folder_path = f"downloaded_articles/prothomalo/{year}/{month}/{day}/page_{i}"
+            while(1):
+                page_html = driver.page_source
+                soup = BeautifulSoup(page_html, 'html.parser')
+                li_elements = soup.find_all(class_="owl-item")
+                num_pages = len(li_elements)
+                # print(num_pages)
+                if num_pages > 5:
+                    break
             
-    #         if i != 1:
-    #             page = driver.find_element_by_class_name("nextPageButton")
-    #             page.click()
-            
-    #         edition_id = driver.find_element_by_id("edition_id").get_attribute("value")
-    #         area_tags = driver.find_elements_by_css_selector('area.view_modal')
+            if i != 1:
+                # page = driver.find_element_by_class_name("nextpage")
+                # page.click()
+                driver.execute_script("""
+                    if (IsImageCropping == '1')
+                        removeCrop();
 
-    #         area_data_list = []
-    #         for area_tag in area_tags:
-    #             data_mapid = area_tag.get_attribute('data-mapid')
-    #             coords = area_tag.get_attribute('coords')
-    #             area_data_list.append({'coords': coords, 'edition_id': edition_id, 'ed_map_id': data_mapid})
-    #         print("\nAPI params extracted. Making API requests...")
-            
-    #         img_urls = await scrape_page(session, api_url, area_data_list)
-            
-    #         download_images(img_urls, folder_path)
-    #         clear_last_lines(5)
+                    prevPageFlag = 0;
+                    nextPageFlag = 1;
+                    var cur_pg = $("#div_flipbook").turn("page");
+                    var pagename = $(this).siblings('p').text();
+                    var item = $("#div_flipbook").find("div.turn-page-wrapper").find("div.turn-page.p" + ((cur_pg) + (1))).find("img.img_jpg");
+                    var pageId = $(item).attr('page_id');
+                    var sequence = $("#pg_id_" + pageId).attr('sequence');
+                    var _pageNo = $("#pg_id_" + pageId).attr('pageno');
+                    _pgCount = $("#pg_id_" + pageId).attr('paywallpage');
+                    if (showSignInWall(sequence, _pageNo)) {
+                        if (!validateToken()) {
+                        return false;
+                        }
+                    } else if (checkNthPageCount(sequence, _pageNo)) {
+                        if (!validateSubForNthPage()) {
+                        return false;
+                        }
+                    }
+                    $("#div_flipbook").turn("next");
 
-    # print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
+                    var cur_pg = $("#div_flipbook").turn("page");
+                    if (totalpages == cur_pg) {
+                        $(".nextpage").hide();
+                    } else {
+                        $(".nextpage").show();
+                    }
+                    
+                    """)
+            
+            gen_prompt(f"Accessed page: {i}")
+            time.sleep(1)
+            orgid_elements = driver.find_elements_by_class_name("pagerectangle")
+
+            orgid_values = []
+            for element in orgid_elements:
+                orgid = element.get_attribute("orgid")
+                orgid_values.append(orgid)
+            print(orgid_values)
+            
+            # area_data_list = []
+            # for area_tag in area_tags:
+            #     data_mapid = area_tag.get_attribute('data-mapid')
+            #     coords = area_tag.get_attribute('coords')
+            #     area_data_list.append({'coords': coords, 'edition_id': edition_id, 'ed_map_id': data_mapid})
+            # print("\nAPI params extracted. Making API requests...")
+            
+            # img_urls = await scrape_page(session, api_url, area_data_list)
+            
+            # download_images(img_urls, folder_path)
+            # clear_last_lines(5)
+
+    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
 
 asyncio.run(main(driver, "2012", "01", "01"))
 

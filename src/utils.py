@@ -1,6 +1,7 @@
 import os
 import requests
 import sys
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 def check_internet_connection():
@@ -11,6 +12,14 @@ def check_internet_connection():
     except requests.RequestException:
         pass  
     return False  
+
+def compare_dates(date_str1, date_str2):
+    # Parse the dates
+    date1 = datetime.strptime(date_str1, "%A, %b %d, %Y")
+    date2 = datetime.strptime(date_str2, "%m/%d/%Y")
+    
+    # Compare the dates
+    return date1.date() == date2.date()
 
 def load_info(file_path):
     scraped_dates = set()

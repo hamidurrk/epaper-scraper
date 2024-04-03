@@ -18,6 +18,10 @@ firefox_options = webdriver.FirefoxOptions()
 driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+base_url = f"https://epaper.prothomalo.com/Home/"
+print(f"Accessed Prothom Alo")
+driver.get(base_url)
+
 def scrape_jugantor(year: str, month: str, day: str):
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
     print(f"\nAccessing: {url}")
@@ -122,23 +126,16 @@ def scrape_old_jugantor(year: str, month: str, day: str):
     gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
    
 # ------------------------------------- scrape_recent_jugantor ----------------------------------------/
-
-def scrape_prothomalo(year: str, month: str, day: str):
-    base_url = f"https://epaper.prothomalo.com/Home/"
-    # api_url = "https://epaper.jugantor.com/link"
-    # https://epaper.prothomalo.com/Home/DIndex?eid=1&edate=01/01/2012&sedId=1&pgid=461999&isProductPanel=true&MagazineEdID=0&MagEdDate=01/01/2012&isIssueRefresh=False&uemail=
-    print(f"\nAccessing: {base_url}")
-    driver.get(base_url)
-    
+def wait_until_visible(class_name):
     try:
-        print("\nURL opened")
         image_elements = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "pagerectangle"))
+            EC.presence_of_element_located((By.CLASS_NAME, f"{class_name}"))
         )
     except:
         print(f"\nCouldn't open URL")
         pass
-    # time.sleep(2)
+def load_paper(year: str, month: str, day: str): 
+    wait_until_visible("pagerectangle")
     date_to_set = f"{day}/{month}/{year}"  
     script = f"""
         SetCDNUrl('https://epaper.prothomalo.com/');
@@ -146,7 +143,6 @@ def scrape_prothomalo(year: str, month: str, day: str):
         SAM_PageFirstLoad();
         SAM_Pageload();
         moblayoutPageLoad();
-        Setdate('{date_to_set}');
         if (IsDateChangedFromUrl == 0) setcookies("changeddate", '{date_to_set}');
         
         $('[data-toggle="tooltip"]').tooltip();
@@ -157,68 +153,27 @@ def scrape_prothomalo(year: str, month: str, day: str):
         setcookies("EditionId", '1');
         setcookies("MainEditionId", '1');
         ShowDatePopUp();
+        document.querySelector('.ui-datepicker-current-day').click();
     """
     driver.execute_script(script)
-    element = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "ui-datepicker-current-day"))
-    )
-    element.click()
-    
-    
-    # ul_element = driver.find_element_by_css_selector("ul.list-unstyled.jug-scrollable")
-    # li_elements = ul_element.find_elements_by_tag_name("li")
-    # num_pages = len(li_elements)
-    
-    # for i in range(1, num_pages + 1):
-    #     folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
-        
-    #     try:
-    #         image_elements = WebDriverWait(driver, 10).until(
-    #             EC.presence_of_element_located((By.CLASS_NAME, "main-img-div"))
-    #         )
-    #         gen_prompt(f"Accessed Page {i}")
-    #     except:
-    #         print("Error: Paper page didn't load")
-    #         continue
-        
-    #     if i != 1:
-    #         page = driver.find_element_by_class_name("nextPageButton")
-    #         page.click()
-        
-    #     edition_id = driver.find_element_by_id("edition_id").get_attribute("value")
-    #     area_tags = driver.find_elements_by_css_selector('area.view_modal')
+    # wait_until_visible("ui-widget-content")
+    # element = WebDriverWait(driver, 10).until(
+    #     EC.element_to_be_clickable((By.CLASS_NAME, "ui-datepicker-current-day"))
+    # )
+    # element.click()
 
-    #     area_data_list = []
-    #     for area_tag in area_tags:
-    #         data_mapid = area_tag.get_attribute('data-mapid')
-    #         coords = area_tag.get_attribute('coords')
-    #         area_data_list.append({'coords': coords, 'edition_id': edition_id, 'ed_map_id': data_mapid})
-    #     sys.stdout.write("\rAPI params extracted. Making API requests...")
-    #     sys.stdout.flush()
-        
-    #     try:
-    #         img_urls  = []
-    #         for data in area_data_list:
-    #             response = requests.get(api_url, params=data)
-    #             soup = BeautifulSoup(response.text, 'html.parser')
-    #             img_tags = soup.find('div', class_='img-ScrollBar').find_all('img')
-                
-    #             for img_tag in img_tags:
-    #                 img_src = img_tag['src']
-    #                 img_urls.append(img_src)
-            
-    #         sys.stdout.write("\rAPI requests successful")
-    #         sys.stdout.flush()
-    #     except Exception as e:
-    #         sys.stdout.write("\rAPI request failed!")
-    #         sys.stdout.flush()
-    #         continue
-    #     download_images(img_urls, folder_path)
-    
-    # print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
-    # gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
- 
-scrape_prothomalo("2012", "01", "01")
+def get_orgid():
+    orgid_elements = driver.find_elements_by_class_name("pagerectangle")
+
+    orgid_values = []
+    for element in orgid_elements:
+        orgid = element.get_attribute("orgid")
+        orgid_values.append(orgid)
+
+    print(orgid_values)
+    return orgid_values
+     
+
 
 async def fetch_image_urls(session, api_url, area_data):
     async with session.get(api_url, params=area_data) as response:
@@ -245,57 +200,60 @@ async def scrape_page(session, api_url, area_data_list):
         return None
 
 async def main(driver, year, month, day):
-    url = f"https://epaper.jugantor.com/north/{year}-{month}-{day}"
-    api_url = "https://epaper.jugantor.com/link"
-    print(f"\nAccessing: {url}")
-    driver.get(url)
-    try:
-        print("\nURL opened")
-        image_elements = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "view_modal"))
-        )
-    except:
-        print(f"\nCouldn't open URL")
-        return
-
-    ul_element = driver.find_element_by_css_selector("ul.list-unstyled.jug-scrollable")
-    li_elements = ul_element.find_elements_by_tag_name("li")
-    num_pages = len(li_elements)
-
-    async with aiohttp.ClientSession() as session:
-        for i in range(1, num_pages + 1):
-            folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
-            try:
-                image_elements = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "view_modal"))
-                )
-                gen_prompt(f"Accessed Page {i}")
-            except:
-                print("Error: Paper page didn't load")
-                continue
+    load_paper(year, month, day)
+    while(1):
+        try:
+            paper_date_element = driver.find_element_by_id("article_list_date_mobile")
+            paper_date = paper_date_element.text
+            # print("waiting")
+            time.sleep(0.2)
+            if compare_dates(paper_date, f"{month}/{day}/{year}"):
+                page_html = driver.page_source
+                soup = BeautifulSoup(page_html, 'html.parser')
+                li_elements = soup.find_all(class_="owl-item")
+                num_pages = len(li_elements)
+                # print(num_pages)
+                if num_pages > 5:
+                    break
+        except:
+            pass
+    print(num_pages)
+        
+    
+    # async with aiohttp.ClientSession() as session:
+    #     for i in range(1, num_pages + 1):
+    #         folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
+    #         try:
+    #             image_elements = WebDriverWait(driver, 10).until(
+    #                 EC.presence_of_element_located((By.CLASS_NAME, "view_modal"))
+    #             )
+    #             gen_prompt(f"Accessed Page {i}")
+    #         except:
+    #             print("Error: Paper page didn't load")
+    #             continue
             
-            if i != 1:
-                page = driver.find_element_by_class_name("nextPageButton")
-                page.click()
+    #         if i != 1:
+    #             page = driver.find_element_by_class_name("nextPageButton")
+    #             page.click()
             
-            edition_id = driver.find_element_by_id("edition_id").get_attribute("value")
-            area_tags = driver.find_elements_by_css_selector('area.view_modal')
+    #         edition_id = driver.find_element_by_id("edition_id").get_attribute("value")
+    #         area_tags = driver.find_elements_by_css_selector('area.view_modal')
 
-            area_data_list = []
-            for area_tag in area_tags:
-                data_mapid = area_tag.get_attribute('data-mapid')
-                coords = area_tag.get_attribute('coords')
-                area_data_list.append({'coords': coords, 'edition_id': edition_id, 'ed_map_id': data_mapid})
-            print("\nAPI params extracted. Making API requests...")
+    #         area_data_list = []
+    #         for area_tag in area_tags:
+    #             data_mapid = area_tag.get_attribute('data-mapid')
+    #             coords = area_tag.get_attribute('coords')
+    #             area_data_list.append({'coords': coords, 'edition_id': edition_id, 'ed_map_id': data_mapid})
+    #         print("\nAPI params extracted. Making API requests...")
             
-            img_urls = await scrape_page(session, api_url, area_data_list)
+    #         img_urls = await scrape_page(session, api_url, area_data_list)
             
-            download_images(img_urls, folder_path)
-            clear_last_lines(5)
+    #         download_images(img_urls, folder_path)
+    #         clear_last_lines(5)
 
-    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
+    # print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
 
-# asyncio.run(main(driver, "2024", "03", "13"))
+asyncio.run(main(driver, "2012", "01", "01"))
 
 # ------------------------------------- scrape_recent_jugantor end ----------------------------------------/
 

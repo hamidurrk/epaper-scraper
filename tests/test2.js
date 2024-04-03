@@ -1470,4 +1470,4 @@ https://epaper.prothomalo.com/Home/DIndex?eid=1&edate=02/04/2012&sedId=1&pgid=46
 https://epaper.prothomalo.com/Home/MShareArticle?OrgId=a1010501z&eid=1&imageview=0&epedate=02/04/2012&sedId=1
 https://epaper.prothomalo.com/Home/MShareArticle?OrgId=a1010500z&eid=1&imageview=0&epedate=02/04/2012&sedId=1
 https://epaper.prothomalo.com/Home/MShareArticle?OrgId=a1010504z&eid=1&imageview=0&epedate=02/04/2012&sedId=1
-https://epaper.prothomalo.com/Home/MShareArticle?OrgId=34dc2c8f03&eid=1&imageview=0&epedate=01/04/2016&sedId=1
+https://epaper.prothomalo.com/Home/MShareArticle?OrgId=a989473z&eid=1&imageview=0&epedate=01/04/2016&sedId=1

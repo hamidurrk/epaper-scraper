@@ -234,9 +234,7 @@ async def main(driver, year, month, day):
                     break
             
             if i != 1:
-                # page = driver.find_element_by_class_name("nextpage")
-                # page.click()
-                driver.execute_script("""
+                next_page_script = """
                     if (IsImageCropping == '1')
                         removeCrop();
 
@@ -267,7 +265,8 @@ async def main(driver, year, month, day):
                         $(".nextpage").show();
                     }
                     
-                    """)
+                    """
+                driver.execute_script("next_page_script")
             
             gen_prompt(f"Accessed page: {i}")
             time.sleep(1)

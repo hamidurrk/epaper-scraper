@@ -169,11 +169,11 @@ def extract_all_range(start_year, start_month, start_day, end_year, end_month, e
     else: 
         print(f"\nExtraction finished from {start_date} to {date_str}")
 
-if __name__=="__main__": 
+# if __name__=="__main__": 
     # start_time = time.time()
     # extract_all_and_store("2012", "01", "01")
     # end_time = time.time()
     # execution_time = end_time - start_time
     # print(f"Execution time: {execution_time} seconds")
 
-    extract_all_range("2013", "01", "01", "2013", "05", "31")
+    # extract_all_range("2013", "01", "01", "2013", "05", "31")

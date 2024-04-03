@@ -63,4 +63,4 @@ def remove_rows_below_wordcount_threshold(table_name, wordcount_threshold):
 # delete_all_rows("jugantor")
 # drop_table("jugantor")
 
-remove_rows_below_wordcount_threshold("jugantor", 50)
+# remove_rows_below_wordcount_threshold("jugantor", 50)

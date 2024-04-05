@@ -197,6 +197,7 @@ async def scrape_page(session, api_url, area_data_list):
         return None
 
 async def main(driver, year, month, day):
+    wait_until_visible("article_list_date_mobile")
     paper_date_element = driver.find_element_by_id("article_list_date_mobile")
     paper_date = paper_date_element.text
     time.sleep(0.2)
@@ -266,12 +267,19 @@ async def main(driver, year, month, day):
                     }
                     
                     """
-                driver.execute_script("next_page_script")
+                driver.execute_script(next_page_script)
             
             gen_prompt(f"Accessed page: {i}")
             time.sleep(1)
-            orgid_elements = driver.find_elements_by_class_name("pagerectangle")
+            page_wrapper_elements = driver.find_elements_by_class_name("turn-page-wrapper")
+            dom_page_num = []
+            for page_wrapper_element in page_wrapper_elements:
+                if page_wrapper_element.value_of_css_property("display") != "none":
+                    dom_page_num.append(page_wrapper_element.get_attribute("page"))
+            dom_page_num = str(dom_page_num[:1])
+            print(dom_page_num)
 
+            orgid_elements = driver.find_elements_by_class_name("pagerectangle")
             orgid_values = []
             for element in orgid_elements:
                 orgid = element.get_attribute("orgid")

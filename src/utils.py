@@ -69,3 +69,11 @@ def download_images(image_urls, folder_path):
     # sys.stdout.write("\033[K")  
     # sys.stdout.write("\033[F")  
     # sys.stdout.write("\033[K")
+
+def date_to_timestamp(input_date):
+    min_combined_datetime = datetime.combine(input_date, datetime.min.time())
+    max_combined_datetime = datetime.combine(input_date, datetime.max.time())
+
+    min_timestamp = int(min_combined_datetime.timestamp() * 1000)  
+    max_timestamp = int(max_combined_datetime.timestamp() * 1000)  
+    return min_timestamp, max_timestamp

@@ -2,12 +2,12 @@ import sqlite3
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_PATH = os.path.join(BASE_DIR, 'jugantor.db')
-conn = sqlite3.connect('jugantor.db')
+DATABASE_PATH = os.path.join(BASE_DIR, 'prothomalo.db')
+conn = sqlite3.connect('prothomalo.db')
 
 def create_table():
     c = conn.cursor()
-    c.execute("""CREATE TABLE jugantor (
+    c.execute("""CREATE TABLE prothomalo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 year INTEGER,
                 date INTEGER,
@@ -59,7 +59,7 @@ def remove_rows_below_wordcount_threshold(table_name, wordcount_threshold):
     finally:
         conn.close()
         
-# create_table()
+create_table()
 # delete_all_rows("jugantor")
 # drop_table("jugantor")
 

@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_PATH = os.path.join(BASE_DIR, 'jugantor.db')
+DATABASE_PATH = os.path.join(BASE_DIR, "files", 'jugantor.db')
 conn = sqlite3.connect(DATABASE_PATH)
 
 def create_table():
@@ -60,6 +60,23 @@ def remove_rows_below_wordcount_threshold(table_name, wordcount_threshold):
     finally:
         conn.close()
 
+def divide_df_by_year_and_save_to_excel(df, directory, paper_name):
+    folder_name = f'{paper_name}_excel'
+    os.makedirs(os.path.join(directory, folder_name), exist_ok=True)
+    
+    unique_years = df['year'].unique()
+    
+    print(f'Years found: {len(unique_years)}\nYears: {unique_years}')
+    
+    for year in unique_years:
+        year_df = df[df['year'] == year]
+        
+        print(f'Converting year: {year}')
+        file_name = f"{paper_name}_{year}.xlsx"
+        file_path = os.path.join(directory, folder_name, file_name)
+        
+        year_df.to_excel(file_path, index=False)
+
 def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
     conn = sqlite3.connect(database_file)
     cursor = conn.cursor()
@@ -83,7 +100,8 @@ def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
         print(df.describe(include='all'))
         
         print("Converting to xlsx...")
-        df.to_excel(excel_file)
+        divide_df_by_year_and_save_to_excel(df, os.path.join(BASE_DIR, "files"), "jugantor")
+        # df.to_excel(excel_file)
         
         print(f"Data from '{table_name}' table sorted by '{sort_column}' column has been successfully exported to '{excel_file}'.")
     
@@ -99,4 +117,4 @@ def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
 # drop_table("jugantor")
 
 # remove_rows_below_wordcount_threshold("jugantor", 50)
-sqlite_to_excel(DATABASE_PATH, 'jugantor', 'date', os.path.join(BASE_DIR, 'jugantor.xlsx'))
+# sqlite_to_excel(DATABASE_PATH, 'jugantor', 'date', os.path.join(BASE_DIR, 'jugantor.xlsx'))

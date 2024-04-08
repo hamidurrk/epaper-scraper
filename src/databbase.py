@@ -1,9 +1,10 @@
 import sqlite3
 import os
+import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_PATH = os.path.join(BASE_DIR, 'prothomalo.db')
-conn = sqlite3.connect('prothomalo.db')
+DATABASE_PATH = os.path.join(BASE_DIR, 'jugantor.db')
+conn = sqlite3.connect(DATABASE_PATH)
 
 def create_table():
     c = conn.cursor()
@@ -58,9 +59,44 @@ def remove_rows_below_wordcount_threshold(table_name, wordcount_threshold):
         print(f"Error deleting rows: {e}")
     finally:
         conn.close()
+
+def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
+    conn = sqlite3.connect(database_file)
+    cursor = conn.cursor()
+    try:
+        print("Fetching data from database...")
+        cursor.execute(f'SELECT * FROM {table_name} ORDER BY {sort_column} DESC')
+
+        data = cursor.fetchall()
+
+        df = pd.DataFrame(data, columns=[col[0] for col in cursor.description])
         
-create_table()
+        df = df.drop(columns=['id'])
+        
+        print("Head of the data:")
+        print(df.head())
+        
+        print("Tail of the data:")
+        print(df.tail())
+        
+        print("DataFrame Description:")
+        print(df.describe(include='all'))
+        
+        print("Converting to xlsx...")
+        df.to_excel(excel_file)
+        
+        print(f"Data from '{table_name}' table sorted by '{sort_column}' column has been successfully exported to '{excel_file}'.")
+    
+    except sqlite3.Error as e:
+        print("Error:", e)
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+# create_table()
 # delete_all_rows("jugantor")
 # drop_table("jugantor")
 
 # remove_rows_below_wordcount_threshold("jugantor", 50)
+sqlite_to_excel(DATABASE_PATH, 'jugantor', 'date', os.path.join(BASE_DIR, 'jugantor.xlsx'))

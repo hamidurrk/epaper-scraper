@@ -9,6 +9,56 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 customtkinter.set_default_color_theme("blue")
  
+PY2 = sys.version_info[0] == 2
+
+class Reloader(object):
+
+    RELOADING_CODE = 3
+    def start_process(self):
+        while True:
+            print("Starting CTk application...")
+
+            args = [sys.executable] + sys.argv
+            env = os.environ.copy()
+            env['TKINTER_MAIN'] = 'true'
+
+            if os.name == 'nt' and PY2:
+                for key, value in env.iteritems():
+                    env[key] = value.encode('iso-8859-1')
+
+            exit_code = subprocess.call(args, env=env,
+                                        close_fds=False)
+            if exit_code != self.RELOADING_CODE:
+                return exit_code
+
+    def trigger_reload(self):
+        self.log_reload()
+        sys.exit(self.RELOADING_CODE)
+
+    def log_reload(self):
+        print("Reloading...")
+
+def run_with_reloader(root, *hotkeys):
+    """Run the given application in an independent python interpreter."""
+    import signal
+    signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
+    reloader = Reloader()
+    try:
+        if os.environ.get('TKINTER_MAIN') == 'true':
+
+            for hotkey in hotkeys:
+                root.bind_all(hotkey, lambda event: reloader.trigger_reload())
+                
+            if os.name == 'nt':
+                root.wm_state("iconic")
+                root.wm_state("zoomed")
+
+            root.start()
+        else:
+            sys.exit(reloader.start_process())
+    except KeyboardInterrupt:
+        pass
+
 class App(customtkinter.CTk):
     APP_NAME = "Epaper Scraper"
     WIDTH = 1400
@@ -46,8 +96,8 @@ class App(customtkinter.CTk):
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
         self.navigation_frame.grid_rowconfigure(4, weight=1)
 
-        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="  Image Example", image=self.logo_image,
-                                                             compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text=self.APP_NAME, 
+                                                             compound="left", font=customtkinter.CTkFont(size=18, weight="bold"))
         self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20)
         
         # jugantor
@@ -135,7 +185,8 @@ class App(customtkinter.CTk):
 
 
 if __name__ == "__main__":
-    app = App()
-    t = threading.Thread()
-    t.start()
-    app.start()
+    # app = App()
+    # t = threading.Thread()
+    # t.start()
+    run_with_reloader(App(), "<Control-R>", "<Control-r>")
+    

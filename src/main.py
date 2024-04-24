@@ -144,7 +144,7 @@ class App(customtkinter.CTk):
         # self.jugantor_frame_button_4 = customtkinter.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="bottom", anchor="w")
         # self.jugantor_frame_button_4.grid(row=4, column=0, padx=20, pady=10)
 
-        # create second frame
+        # ======================== prothomalo frame ==============================
         self.prothomalo_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.prothomalo_frame.grid_columnconfigure(0, weight=1)
 

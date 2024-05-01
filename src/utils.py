@@ -70,6 +70,10 @@ def download_images(image_urls, folder_path):
     # sys.stdout.write("\033[F")  
     # sys.stdout.write("\033[K")
 
+def convert_datestr_to_var(selected_date):
+    day, month, year = map(int, selected_date.split('/'))
+    return day, month, year
+
 def date_to_timestamp(input_date):
     min_combined_datetime = datetime.combine(input_date, datetime.min.time())
     max_combined_datetime = datetime.combine(input_date, datetime.max.time())

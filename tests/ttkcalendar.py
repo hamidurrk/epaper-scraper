@@ -11,7 +11,7 @@ ctk.set_default_color_theme("green")
 root = ctk.CTk()
 root.geometry("550x400")
 # Function to update the label with selected date
-def update_label(event):
+def update_date(event):
     selected_date = cal.get_date()
     day, month, year = map(int, selected_date.split('/'))
     # Update label text with selected date
@@ -29,7 +29,7 @@ cal = Calendar(frame, selectmode='day', locale='en_US', disabledforeground='red'
 cal.pack(fill="both", expand=True, padx=10, pady=10)
 
 # Bind callback function to the CalendarSelected event
-cal.bind("<<CalendarSelected>>", update_label)
+cal.bind("<<CalendarSelected>>", update_date)
 
 # Label to display selected date
 date_label = ctk.CTkLabel(frame, text="Selected Date: ")

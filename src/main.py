@@ -1,13 +1,13 @@
 # from scraping import *
 from extraction import *
-import customtkinter
+from utils import *
+import customtkinter as ctk
 import os
-import threading
-import subprocess
+import subprocess, sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-customtkinter.set_default_color_theme("blue")
+ctk.set_default_color_theme("blue")
  
 PY2 = sys.version_info[0] == 2
 
@@ -59,7 +59,18 @@ def run_with_reloader(root, *hotkeys):
     except KeyboardInterrupt:
         pass
 
-class App(customtkinter.CTk):
+def redirect_stdout_to_text_widget(text_widget):
+    class StdoutRedirector:
+        def __init__(self, text_widget):
+            self.text_widget = text_widget
+
+        def write(self, message):
+            self.text_widget.insert("end", message)
+            self.text_widget.see("end")
+
+    sys.stdout = StdoutRedirector(text_widget)
+
+class App(ctk.CTk):
     APP_NAME = "Epaper Scraper"
     WIDTH = 1400
     HEIGHT = 800
@@ -81,103 +92,135 @@ class App(customtkinter.CTk):
 
         # load images with light and dark mode image
         image_path = os.path.join(BASE_DIR, "resources")
-        self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "CustomTkinter_logo_single.png")), size=(26, 26))
-        self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "large_test_image.png")), size=(500, 150))
+        self.logo_image = ctk.CTkImage(Image.open(os.path.join(image_path, "CustomTkinter_logo_single.png")), size=(26, 26))
+        self.large_test_image = ctk.CTkImage(Image.open(os.path.join(image_path, "large_test_image.png")), size=(500, 150))
         
-        self.jugantor_img = customtkinter.CTkImage(Image.open(os.path.join(image_path, "jugantor.jpg")), size=(130, 35))
-        self.jugantor_img_lg = customtkinter.CTkImage(Image.open(os.path.join(image_path, "jugantor.jpg")), size=(500, 150))
-        self.prothomalo_img = customtkinter.CTkImage(Image.open(os.path.join(image_path, "prothom_alo.png")), size=(130, 35))
-        self.prothomalo_img_lg = customtkinter.CTkImage(Image.open(os.path.join(image_path, "prothom_alo.png")), size=(500, 150))
-        self.kalkerkantho_img = customtkinter.CTkImage(Image.open(os.path.join(image_path, "kaler_kantho.png")), size=(130, 35))
-        self.kalkerkantho_img_lg = customtkinter.CTkImage(Image.open(os.path.join(image_path, "kaler_kantho.png")), size=(500, 150))
+        self.jugantor_img = ctk.CTkImage(Image.open(os.path.join(image_path, "jugantor.jpg")), size=(130, 35))
+        self.jugantor_img_lg = ctk.CTkImage(Image.open(os.path.join(image_path, "jugantor.jpg")), size=(500, 150))
+        self.prothomalo_img = ctk.CTkImage(Image.open(os.path.join(image_path, "prothom_alo.png")), size=(130, 35))
+        self.prothomalo_img_lg = ctk.CTkImage(Image.open(os.path.join(image_path, "prothom_alo.png")), size=(500, 150))
+        self.kalkerkantho_img = ctk.CTkImage(Image.open(os.path.join(image_path, "kaler_kantho.png")), size=(130, 35))
+        self.kalkerkantho_img_lg = ctk.CTkImage(Image.open(os.path.join(image_path, "kaler_kantho.png")), size=(500, 150))
         
-        self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")), size=(20, 20))
-        self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
+        self.image_icon_image = ctk.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")), size=(20, 20))
+        self.home_image = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
                                                  dark_image=Image.open(os.path.join(image_path, "home_light.png")), size=(20, 20))
-        self.chat_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "chat_dark.png")),
+        self.chat_image = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "chat_dark.png")),
                                                  dark_image=Image.open(os.path.join(image_path, "chat_light.png")), size=(20, 20))
-        self.add_user_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "add_user_dark.png")),
+        self.add_user_image = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "add_user_dark.png")),
                                                      dark_image=Image.open(os.path.join(image_path, "add_user_light.png")), size=(20, 20))
 
         # create navigation frame
-        self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
+        self.navigation_frame = ctk.CTkFrame(self, corner_radius=0)
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
         self.navigation_frame.grid_rowconfigure(4, weight=1)
 
-        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text=self.APP_NAME, 
-                                                             compound="left", font=customtkinter.CTkFont(size=18, weight="bold"))
+        self.navigation_frame_label = ctk.CTkLabel(self.navigation_frame, text=self.APP_NAME, 
+                                                             compound="left", font=ctk.CTkFont(size=18, weight="bold"))
         self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20)
         
-        # jugantor
-        self.jugantor_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="",
+        self.jugantor_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="",
                                                    fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                    image=self.jugantor_img, anchor="w", command=self.jugantor_button_event)
         self.jugantor_button.grid(row=1, column=0, sticky="ew")
 
-        self.prothomalo_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="",
+        self.prothomalo_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                       image=self.prothomalo_img, anchor="w", command=self.prothomalo_button_event)
         self.prothomalo_button.grid(row=2, column=0, sticky="ew")
 
-        self.frame_3_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="",
+        self.frame_3_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                       image=self.kalkerkantho_img, anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
-        self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame, values=["Light", "Dark", "System"],
+        self.appearance_mode_menu = ctk.CTkOptionMenu(self.navigation_frame, values=["Dark", "Light", "System"],
                                                                 command=self.change_appearance_mode_event)
         self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
-
+        
         # ======================== jugantor frame ==============================
-        self.jugantor_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.jugantor_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.jugantor_frame.grid_columnconfigure(0, weight=1)
 
-        self.jugantor_frame_large_image_label = customtkinter.CTkLabel(self.jugantor_frame, text="", image=self.jugantor_img_lg)
+        self.jugantor_frame_large_image_label = ctk.CTkLabel(self.jugantor_frame, text="", image=self.jugantor_img_lg)
         self.jugantor_frame_large_image_label.grid(row=0, column=0, padx=20, pady=50)
 
-        # self.jugantor_frame_button_1 = customtkinter.CTkButton(self.jugantor_frame, text="", image=self.image_icon_image)
+        # self.jugantor_frame_button_1 = ctk.CTkButton(self.jugantor_frame, text="", image=self.image_icon_image)
         # self.jugantor_frame_button_1.grid(row=1, column=0, padx=20, pady=10)
-        # self.jugantor_frame_button_2 = customtkinter.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="right")
+        # self.jugantor_frame_button_2 = ctk.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="right")
         # self.jugantor_frame_button_2.grid(row=2, column=0, padx=20, pady=10)
-        # self.jugantor_frame_button_3 = customtkinter.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="top")
+        # self.jugantor_frame_button_3 = ctk.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="top")
         # self.jugantor_frame_button_3.grid(row=3, column=0, padx=20, pady=10)
-        # self.jugantor_frame_button_4 = customtkinter.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="bottom", anchor="w")
+        # self.jugantor_frame_button_4 = ctk.CTkButton(self.jugantor_frame, text="CTkButton", image=self.image_icon_image, compound="bottom", anchor="w")
         # self.jugantor_frame_button_4.grid(row=4, column=0, padx=20, pady=10)
 
         # ======================== prothomalo frame ==============================
-        self.prothomalo_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.prothomalo_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.prothomalo_frame.grid_columnconfigure(0, weight=1)
         self.prothomalo_frame.grid_rowconfigure((0), weight=0)
         self.prothomalo_frame.grid_rowconfigure((1), weight=1)
         self.prothomalo_frame.grid_rowconfigure((2, 3), weight=2)
         
-        self.prothomalo_frame_large_image_label = customtkinter.CTkLabel(self.prothomalo_frame, text="", image=self.prothomalo_img_lg)
+        self.prothomalo_frame_large_image_label = ctk.CTkLabel(self.prothomalo_frame, text="", image=self.prothomalo_img_lg)
         self.prothomalo_frame_large_image_label.grid(row=0, column=0, padx=20, pady=50)
         
-        self.prothomalo_subframe1 = customtkinter.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
+        self.prothomalo_subframe1 = ctk.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
         self.prothomalo_subframe1.grid(row=1, column=0, sticky="nsew")
         self.prothomalo_subframe1.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.prothomalo_subframe1.grid_rowconfigure((0), weight=1)
         
-        self.test_button = customtkinter.CTkButton(self.prothomalo_subframe1)
-        self.test_button.grid(row=0, column=3)
+        functions = ["Select a function", "Function 1", "Function 2"]
+        self.function_dropdown = ctk.CTkOptionMenu(self.prothomalo_subframe1, width= 200, values=functions, command=self.update_parameters)
+        self.function_dropdown.grid(row=0, column=0)
+
+        # Entry boxes for date
+        self.date_entry_1 = ctk.CTkEntry(self.prothomalo_subframe1, width=200, placeholder_text="Start Date: dd/mm/yyyy")
+        self.date_entry_2 = ctk.CTkEntry(self.prothomalo_subframe1, width=200, placeholder_text="End Date: dd/mm/yyyy")
         
-        self.prothomalo_subframe2 = customtkinter.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="white")
-        self.prothomalo_subframe2.grid(row=2, column=0, sticky="nsew")
-        self.prothomalo_subframe3 = customtkinter.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
-        self.prothomalo_subframe3.grid(row=3, column=0, sticky="nsew")
-
-
+        self.run_button = ctk.CTkButton(self.prothomalo_subframe1, text="Run", command=self.run)
+        self.run_button.grid(row=0, column=3)
+        
+        # self.prothomalo_subframe2 = ctk.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="white")
+        # self.prothomalo_subframe2.grid(row=2, column=0, sticky="nsew")
+        # self.prothomalo_subframe3 = ctk.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
+        # self.prothomalo_subframe3.grid(row=3, column=0, sticky="nsew")
+        self.output_text = ctk.CTkTextbox(self.prothomalo_frame, wrap="word")
+        self.output_text.grid(row=2, column=0, rowspan=2, sticky="nsew", padx=20, pady=10)
+    
+        redirect_stdout_to_text_widget(self.output_text)
+        
         # create third frame
-        self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.third_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.third_frame.grid_columnconfigure(0, weight=1)
 
-        self.third_frame_large_image_label = customtkinter.CTkLabel(self.third_frame, text="", image=self.kalkerkantho_img_lg)
+        self.third_frame_large_image_label = ctk.CTkLabel(self.third_frame, text="", image=self.kalkerkantho_img_lg)
         self.third_frame_large_image_label.grid(row=0, column=0, padx=20, pady=50)
 
         # select default frame
         self.select_frame_by_name("prothomalo")
 
+    def run(self):
+        selected_function = self.function_dropdown.get()
+        
+        if selected_function == "Function 1":
+            print("Selected function:", selected_function)
+            start_date = self.date_entry_1.get()
+            day, month, year = convert_datestr_to_var(start_date)
+            print_date(day, month, year)
+    
+    def update_parameters(self, selected_function):
+        if selected_function == "Select a function":
+            self.date_entry_1.grid_remove()
+            self.date_entry_2.grid_remove()
+        elif selected_function == "Function 1":
+            # Show single entry box for date
+            self.date_entry_1.grid(row=0, column=1)
+            self.date_entry_2.grid_remove()  # Hide second entry box if visible
+        elif selected_function == "Function 2":
+            # Show two entry boxes for start date and end date
+            self.date_entry_1.grid(row=0, column=1)
+            self.date_entry_2.grid(row=0, column=2)
+        
     def select_frame_by_name(self, name):
         # set button color for selected button
         self.jugantor_button.configure(fg_color=("gray75", "gray25") if name == "jugantor" else "transparent")
@@ -208,7 +251,7 @@ class App(customtkinter.CTk):
         self.select_frame_by_name("frame_3")
 
     def change_appearance_mode_event(self, new_appearance_mode):
-        customtkinter.set_appearance_mode(new_appearance_mode)
+        ctk.set_appearance_mode(new_appearance_mode)
         
     def on_closing(self, event=0):
         self.destroy()

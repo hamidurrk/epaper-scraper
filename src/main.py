@@ -61,14 +61,21 @@ def run_with_reloader(root, *hotkeys):
 
 def redirect_stdout_to_text_widget(text_widget):
     class StdoutRedirector:
-        def __init__(self, text_widget):
+        def __init__(self, text_widget, error = False):
             self.text_widget = text_widget
+            self.error = error
 
         def write(self, message):
+            if self.error:
+                self.text_widget.insert("end", ">> ")
             self.text_widget.insert("end", message)
             self.text_widget.see("end")
+        
+        def flush(self):
+            pass
 
     sys.stdout = StdoutRedirector(text_widget)
+    sys.stderr = StdoutRedirector(text_widget, error = True)
 
 class App(ctk.CTk):
     APP_NAME = "Epaper Scraper"
@@ -186,10 +193,12 @@ class App(ctk.CTk):
         # self.prothomalo_subframe3.grid(row=3, column=0, sticky="nsew")
         self.output_text = ctk.CTkTextbox(self.prothomalo_frame, wrap="word")
         self.output_text.grid(row=2, column=0, rowspan=2, sticky="nsew", padx=20, pady=10)
-    
         redirect_stdout_to_text_widget(self.output_text)
         
-        # create third frame
+        self.clear_button = ctk.CTkButton(self.prothomalo_frame, text="Clear Output", command=self.clear_output_text)
+        self.clear_button.grid(row=2, column=0, padx=30, pady=20, sticky="ne")
+        
+        # =============================== create third frame ============================================
         self.third_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.third_frame.grid_columnconfigure(0, weight=1)
 
@@ -205,8 +214,12 @@ class App(ctk.CTk):
         if selected_function == "Function 1":
             print("Selected function:", selected_function)
             start_date = self.date_entry_1.get()
-            day, month, year = convert_datestr_to_var(start_date)
-            print_date(day, month, year)
+            is_valid_format, format_error = validate_date(start_date)
+            if not is_valid_format:
+                print(format_error)  # Or display the error message in your GUI
+            else:
+                day, month, year = convert_datestr_to_var(start_date)
+                print_date(day, month, year)
     
     def update_parameters(self, selected_function):
         if selected_function == "Select a function":
@@ -253,6 +266,9 @@ class App(ctk.CTk):
     def change_appearance_mode_event(self, new_appearance_mode):
         ctk.set_appearance_mode(new_appearance_mode)
         
+    def clear_output_text(self):
+        self.output_text.delete(1.0, "end")
+    
     def on_closing(self, event=0):
         self.destroy()
 

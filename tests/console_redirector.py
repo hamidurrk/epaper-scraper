@@ -11,6 +11,7 @@ def redirect_stdout_to_text_widget(text_widget):
             self.text_widget.see("end")
 
     sys.stdout = StdoutRedirector(text_widget)
+    sys.stderr = StdoutRedirector(text_widget)
 
 # Create a CustomTkinter application
 root = ctk.CTk()

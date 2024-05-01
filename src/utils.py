@@ -1,6 +1,7 @@
 import os
 import requests
 import sys
+import re
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
@@ -73,6 +74,21 @@ def download_images(image_urls, folder_path):
 def convert_datestr_to_var(selected_date):
     day, month, year = map(int, selected_date.split('/'))
     return day, month, year
+
+def validate_date(date_str):
+    # Define a regular expression pattern for the dd/mm/yyyy format
+    date_pattern = r"\d{2}/\d{2}/\d{4}"
+    
+    # Check if the date string matches the pattern
+    if not re.match(date_pattern, date_str):
+        return False, "Invalid date format. Please use the format dd/mm/yyyy."
+    else:
+        try:
+            # Parse the date string using the expected format
+            datetime.strptime(date_str, "%d/%m/%Y")
+            return True, None  # Date is valid
+        except ValueError:
+            return False, "Invalid date. Please enter a valid date."
 
 def date_to_timestamp(input_date):
     min_combined_datetime = datetime.combine(input_date, datetime.min.time())

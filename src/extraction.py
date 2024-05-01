@@ -169,6 +169,8 @@ def extract_all_range(start_year, start_month, start_day, end_year, end_month, e
     else: 
         print(f"\nExtraction finished from {start_date} to {date_str}")
 
+def print_date(day, month, year):
+    print(f"The date is: {day}, {month}, {year}")
 # if __name__=="__main__": 
     # start_time = time.time()
     # extract_all_and_store("2012", "01", "01")

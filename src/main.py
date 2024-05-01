@@ -147,9 +147,26 @@ class App(customtkinter.CTk):
         # ======================== prothomalo frame ==============================
         self.prothomalo_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.prothomalo_frame.grid_columnconfigure(0, weight=1)
-
+        self.prothomalo_frame.grid_rowconfigure((0), weight=0)
+        self.prothomalo_frame.grid_rowconfigure((1), weight=1)
+        self.prothomalo_frame.grid_rowconfigure((2, 3), weight=2)
+        
         self.prothomalo_frame_large_image_label = customtkinter.CTkLabel(self.prothomalo_frame, text="", image=self.prothomalo_img_lg)
         self.prothomalo_frame_large_image_label.grid(row=0, column=0, padx=20, pady=50)
+        
+        self.prothomalo_subframe1 = customtkinter.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
+        self.prothomalo_subframe1.grid(row=1, column=0, sticky="nsew")
+        self.prothomalo_subframe1.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        self.prothomalo_subframe1.grid_rowconfigure((0), weight=1)
+        
+        self.test_button = customtkinter.CTkButton(self.prothomalo_subframe1)
+        self.test_button.grid(row=0, column=3)
+        
+        self.prothomalo_subframe2 = customtkinter.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="white")
+        self.prothomalo_subframe2.grid(row=2, column=0, sticky="nsew")
+        self.prothomalo_subframe3 = customtkinter.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
+        self.prothomalo_subframe3.grid(row=3, column=0, sticky="nsew")
+
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -159,7 +176,7 @@ class App(customtkinter.CTk):
         self.third_frame_large_image_label.grid(row=0, column=0, padx=20, pady=50)
 
         # select default frame
-        self.select_frame_by_name("jugantor")
+        self.select_frame_by_name("prothomalo")
 
     def select_frame_by_name(self, name):
         # set button color for selected button

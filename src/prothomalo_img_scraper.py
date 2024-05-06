@@ -11,6 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
+from selenium.common.exceptions import StaleElementReferenceException
 from webdriver_manager.firefox import GeckoDriverManager
 from utils import *
 
@@ -131,9 +132,11 @@ def wait_until_visible(class_name):
         image_elements = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, f"{class_name}"))
         )
-    except:
-        print(f"\nCouldn't open URL")
-        pass
+    except Exception as e:
+        print(e)
+        # raise Exception(f"\nCouldn't open URL: '{class_name}' not visible")
+        
+    
 def load_paper(year: str, month: str, day: str): 
     wait_until_visible("pagerectangle")
     date_to_set = f"{day}/{month}/{year}"  
@@ -202,7 +205,10 @@ async def main(driver, year, month, day):
     paper_date = paper_date_element.text
     time.sleep(0.2)
     if not compare_dates(paper_date, f"{month}/{day}/{year}"):
-        load_paper(year, month, day)
+        try:
+            load_paper(year, month, day)
+        except Exception as e:
+            print(f"{e}\nAccess denied for {day}-{month}-{year}: Possible subscription/login issue.\nPlease check if you're logged in or have valid subscription.")
     while(1):
         try:
             paper_date_element = driver.find_element_by_id("article_list_date_mobile")
@@ -210,6 +216,7 @@ async def main(driver, year, month, day):
             # print("waiting")
             time.sleep(0.2)
             if compare_dates(paper_date, f"{month}/{day}/{year}"):
+                print(paper_date)
                 page_html = driver.page_source
                 soup = BeautifulSoup(page_html, 'html.parser')
                 li_elements = soup.find_all(class_="owl-item")
@@ -221,70 +228,78 @@ async def main(driver, year, month, day):
             pass
     print(num_pages)
         
-    
-    async with aiohttp.ClientSession() as session:
-        for i in range(1, num_pages + 1):
-            folder_path = f"downloaded_articles/prothomalo/{year}/{month}/{day}/page_{i}"
-            while(1):
-                page_html = driver.page_source
-                soup = BeautifulSoup(page_html, 'html.parser')
-                li_elements = soup.find_all(class_="owl-item")
-                num_pages = len(li_elements)
-                # print(num_pages)
-                if num_pages > 5:
+    prev_orgid_values = None
+    for i in range(1, num_pages + 1):
+        folder_path = f"downloaded_articles/prothomalo/{year}/{month}/{day}/page_{i}"
+        # while(1):
+        #     page_html = driver.page_source
+        #     soup = BeautifulSoup(page_html, 'html.parser')
+        #     li_elements = soup.find_all(class_="owl-item")
+        #     num_pages = len(li_elements)
+        #     # print(num_pages)
+        #     if num_pages > 5:
+        #         break
+        
+        if i != 1:
+            next_page_script = """
+                if (IsImageCropping == '1')
+                    removeCrop();
+
+                prevPageFlag = 0;
+                nextPageFlag = 1;
+                var cur_pg = $("#div_flipbook").turn("page");
+                var pagename = $(this).siblings('p').text();
+                var item = $("#div_flipbook").find("div.turn-page-wrapper").find("div.turn-page.p" + ((cur_pg) + (1))).find("img.img_jpg");
+                var pageId = $(item).attr('page_id');
+                var sequence = $("#pg_id_" + pageId).attr('sequence');
+                var _pageNo = $("#pg_id_" + pageId).attr('pageno');
+                _pgCount = $("#pg_id_" + pageId).attr('paywallpage');
+                if (showSignInWall(sequence, _pageNo)) {
+                    if (!validateToken()) {
+                    return false;
+                    }
+                } else if (checkNthPageCount(sequence, _pageNo)) {
+                    if (!validateSubForNthPage()) {
+                    return false;
+                    }
+                }
+                $("#div_flipbook").turn("next");
+
+                var cur_pg = $("#div_flipbook").turn("page");
+                if (totalpages == cur_pg) {
+                    $(".nextpage").hide();
+                } else {
+                    $(".nextpage").show();
+                }
+                
+                """
+            driver.execute_script(next_page_script)
+        
+        gen_prompt(f"Accessed page: {i}")
+        page_wrapper_elements = driver.find_elements_by_class_name("turn-page-wrapper")
+        dom_page_num = []
+        for page_wrapper_element in page_wrapper_elements:
+            if page_wrapper_element.value_of_css_property("display") != "none":
+                dom_page_num.append(page_wrapper_element.get_attribute("page"))
+        dom_page_num = str(dom_page_num[:1])
+        print(dom_page_num)
+
+        count = 0
+        while True:
+            try:
+                orgid_elements = driver.find_elements_by_class_name("pagerectangle")
+                orgid_values = []
+                for element in orgid_elements:
+                    orgid = element.get_attribute("orgid")
+                    orgid_values.append(orgid)
+                count += 1
+                if not orgid_values == prev_orgid_values or count > 300:
+                    print(orgid_values)
                     break
-            
-            if i != 1:
-                next_page_script = """
-                    if (IsImageCropping == '1')
-                        removeCrop();
-
-                    prevPageFlag = 0;
-                    nextPageFlag = 1;
-                    var cur_pg = $("#div_flipbook").turn("page");
-                    var pagename = $(this).siblings('p').text();
-                    var item = $("#div_flipbook").find("div.turn-page-wrapper").find("div.turn-page.p" + ((cur_pg) + (1))).find("img.img_jpg");
-                    var pageId = $(item).attr('page_id');
-                    var sequence = $("#pg_id_" + pageId).attr('sequence');
-                    var _pageNo = $("#pg_id_" + pageId).attr('pageno');
-                    _pgCount = $("#pg_id_" + pageId).attr('paywallpage');
-                    if (showSignInWall(sequence, _pageNo)) {
-                        if (!validateToken()) {
-                        return false;
-                        }
-                    } else if (checkNthPageCount(sequence, _pageNo)) {
-                        if (!validateSubForNthPage()) {
-                        return false;
-                        }
-                    }
-                    $("#div_flipbook").turn("next");
-
-                    var cur_pg = $("#div_flipbook").turn("page");
-                    if (totalpages == cur_pg) {
-                        $(".nextpage").hide();
-                    } else {
-                        $(".nextpage").show();
-                    }
-                    
-                    """
-                driver.execute_script(next_page_script)
-            
-            gen_prompt(f"Accessed page: {i}")
-            time.sleep(1)
-            page_wrapper_elements = driver.find_elements_by_class_name("turn-page-wrapper")
-            dom_page_num = []
-            for page_wrapper_element in page_wrapper_elements:
-                if page_wrapper_element.value_of_css_property("display") != "none":
-                    dom_page_num.append(page_wrapper_element.get_attribute("page"))
-            dom_page_num = str(dom_page_num[:1])
-            print(dom_page_num)
-
-            orgid_elements = driver.find_elements_by_class_name("pagerectangle")
-            orgid_values = []
-            for element in orgid_elements:
-                orgid = element.get_attribute("orgid")
-                orgid_values.append(orgid)
-            print(orgid_values)
+            except StaleElementReferenceException:
+                # print("StaleElementReferenceException: Element reference is stale. Retrying...")
+                continue
+        prev_orgid_values = orgid_values
             
             # area_data_list = []
             # for area_tag in area_tags:

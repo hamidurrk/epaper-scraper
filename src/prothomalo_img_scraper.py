@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 base_url = f"https://epaper.prothomalo.com/Home/"
 print(f"Accessed Prothom Alo")
-# driver.get(base_url)
+driver.get(base_url)
 
 def scrape_jugantor(year: str, month: str, day: str):
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"

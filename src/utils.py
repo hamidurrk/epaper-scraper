@@ -2,6 +2,7 @@ import os
 import requests
 import sys
 import re
+import psutil
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
@@ -13,6 +14,12 @@ def check_internet_connection():
     except requests.RequestException:
         pass  
     return False  
+
+def is_firefox_running():
+    for proc in psutil.process_iter():
+        if "firefox" in proc.name().lower():
+            return True
+    return False
 
 def compare_dates(date_str1, date_str2):
     # Parse the dates

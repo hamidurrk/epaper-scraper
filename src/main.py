@@ -109,7 +109,7 @@ class App(ctk.CTk):
         self.kalkerkantho_img = ctk.CTkImage(Image.open(os.path.join(image_path, "kaler_kantho.png")), size=(130, 35))
         self.kalkerkantho_img_lg = ctk.CTkImage(Image.open(os.path.join(image_path, "kaler_kantho.png")), size=(500, 150))
         
-        self.image_icon_image = ctk.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")), size=(20, 20))
+        self.firefox_icon_image = ctk.CTkImage(Image.open(os.path.join(image_path, "firefox.png")), size=(25, 25))
         self.home_image = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
                                                  dark_image=Image.open(os.path.join(image_path, "home_light.png")), size=(20, 20))
         self.chat_image = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "chat_dark.png")),
@@ -117,10 +117,11 @@ class App(ctk.CTk):
         self.add_user_image = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "add_user_dark.png")),
                                                      dark_image=Image.open(os.path.join(image_path, "add_user_light.png")), size=(20, 20))
 
-        # create navigation frame
+        # ====================================== navigation frame =====================================================
         self.navigation_frame = ctk.CTkFrame(self, corner_radius=0)
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
-        self.navigation_frame.grid_rowconfigure(4, weight=1)
+        self.navigation_frame.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 8), weight=0)
+        self.navigation_frame.grid_rowconfigure((7), weight=1)
 
         self.navigation_frame_label = ctk.CTkLabel(self.navigation_frame, text=self.APP_NAME, 
                                                              compound="left", font=ctk.CTkFont(size=18, weight="bold"))
@@ -140,10 +141,17 @@ class App(ctk.CTk):
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                       image=self.kalkerkantho_img, anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
+        
+        # self.firefox_button = ctk.CTkButton(self.navigation_frame, text="Start FireFox", fg_color="#B23A13")
+        # self.firefox_button.grid(row=7, column=0, sticky="s")
+        self.firefox_button = ctk.CTkButton(self.navigation_frame, text="Start Firefox", image=self.firefox_icon_image, height=40,
+                                            fg_color="transparent", hover_color=("gray70", "gray30"), text_color=("gray10", "gray90"),
+                                            command=self.run_firefox)
+        self.firefox_button.grid(row=7, column=0, sticky="s")
 
         self.appearance_mode_menu = ctk.CTkOptionMenu(self.navigation_frame, values=["Dark", "Light", "System"],
                                                                 command=self.change_appearance_mode_event)
-        self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
+        self.appearance_mode_menu.grid(row=8, column=0, padx=20, pady=20, sticky="s")
         
         # ======================== jugantor frame ==============================
         self.jugantor_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -170,8 +178,8 @@ class App(ctk.CTk):
         
         self.prothomalo_frame_large_image_label = ctk.CTkLabel(self.prothomalo_frame, text="", image=self.prothomalo_img_lg)
         self.prothomalo_frame_large_image_label.grid(row=0, column=0, padx=20, pady=50)
-        
-        self.prothomalo_subframe1 = ctk.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="black")
+        #1D1E1E
+        self.prothomalo_subframe1 = ctk.CTkFrame(self.prothomalo_frame,  corner_radius=0, fg_color="transparent")
         self.prothomalo_subframe1.grid(row=1, column=0, sticky="nsew")
         self.prothomalo_subframe1.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.prothomalo_subframe1.grid_rowconfigure((0), weight=1)
@@ -180,7 +188,6 @@ class App(ctk.CTk):
         self.function_dropdown = ctk.CTkOptionMenu(self.prothomalo_subframe1, width= 200, values=functions, command=self.update_parameters)
         self.function_dropdown.grid(row=0, column=0)
 
-        # Entry boxes for date
         self.date_entry_1 = ctk.CTkEntry(self.prothomalo_subframe1, width=200, placeholder_text="Start Date: dd/mm/yyyy")
         self.date_entry_2 = ctk.CTkEntry(self.prothomalo_subframe1, width=200, placeholder_text="End Date: dd/mm/yyyy")
         
@@ -226,21 +233,17 @@ class App(ctk.CTk):
             self.date_entry_1.grid_remove()
             self.date_entry_2.grid_remove()
         elif selected_function == "Function 1":
-            # Show single entry box for date
             self.date_entry_1.grid(row=0, column=1)
-            self.date_entry_2.grid_remove()  # Hide second entry box if visible
+            self.date_entry_2.grid_remove()  
         elif selected_function == "Function 2":
-            # Show two entry boxes for start date and end date
             self.date_entry_1.grid(row=0, column=1)
             self.date_entry_2.grid(row=0, column=2)
         
     def select_frame_by_name(self, name):
-        # set button color for selected button
         self.jugantor_button.configure(fg_color=("gray75", "gray25") if name == "jugantor" else "transparent")
         self.prothomalo_button.configure(fg_color=("gray75", "gray25") if name == "prothomalo" else "transparent")
         self.frame_3_button.configure(fg_color=("gray75", "gray25") if name == "frame_3" else "transparent")
 
-        # show selected frame
         if name == "jugantor":
             self.jugantor_frame.grid(row=0, column=1, sticky="nsew")
         else:
@@ -263,6 +266,15 @@ class App(ctk.CTk):
     def frame_3_button_event(self):
         self.select_frame_by_name("frame_3")
 
+    def run_firefox(self):
+        bat_file_path = os.path.join(BASE_DIR, "start_firefox.bat")
+        subprocess.run(bat_file_path, shell=True)
+        if is_firefox_running():
+            gen_prompt("Firefox is Running")
+        else:
+            print("Error: Firefox is not running")
+        
+    
     def change_appearance_mode_event(self, new_appearance_mode):
         ctk.set_appearance_mode(new_appearance_mode)
         

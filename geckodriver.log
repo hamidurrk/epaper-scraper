@@ -877,3 +877,6 @@ Dynamically enable window occlusion 1
 1712350788313	geckodriver	INFO	Listening on 127.0.0.1:11142
 1712351046318	geckodriver	INFO	Listening on 127.0.0.1:11332
 1712351063509	geckodriver	INFO	Listening on 127.0.0.1:11361
+1714593447531	geckodriver	INFO	Listening on 127.0.0.1:3230
+1714593570982	geckodriver	INFO	Listening on 127.0.0.1:3266
+1714593695882	geckodriver	INFO	Listening on 127.0.0.1:3305

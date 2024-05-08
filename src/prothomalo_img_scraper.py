@@ -159,11 +159,6 @@ def load_paper(year: str, month: str, day: str):
         document.querySelector('.ui-datepicker-current-day').click();
     """
     driver.execute_script(script)
-    # wait_until_visible("ui-widget-content")
-    # element = WebDriverWait(driver, 10).until(
-    #     EC.element_to_be_clickable((By.CLASS_NAME, "ui-datepicker-current-day"))
-    # )
-    # element.click()
 
 def get_orgid():
     orgid_elements = driver.find_elements_by_class_name("pagerectangle")
@@ -231,14 +226,6 @@ async def main(driver, year, month, day):
     prev_orgid_values = None
     for i in range(1, num_pages + 1):
         folder_path = f"downloaded_articles/prothomalo/{year}/{month}/{day}/page_{i}"
-        # while(1):
-        #     page_html = driver.page_source
-        #     soup = BeautifulSoup(page_html, 'html.parser')
-        #     li_elements = soup.find_all(class_="owl-item")
-        #     num_pages = len(li_elements)
-        #     # print(num_pages)
-        #     if num_pages > 5:
-        #         break
         
         if i != 1:
             next_page_script = """

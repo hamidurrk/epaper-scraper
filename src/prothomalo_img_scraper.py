@@ -1,16 +1,18 @@
 import os
 import sys
 import time
-from datetime import date, timedelta
-from tqdm import tqdm
 import asyncio
 import aiohttp
+import requests
+from tqdm import tqdm
+from io import BytesIO
 from bs4 import BeautifulSoup
+from PIL import Image, ImageDraw
+from datetime import date, timedelta
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium import webdriver
 from selenium.common.exceptions import StaleElementReferenceException
 from webdriver_manager.firefox import GeckoDriverManager
 from utils import *
@@ -170,6 +172,54 @@ def get_orgid():
 
     return orgid_values
 
+def process_for_article_image(html_content, output_directory):
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    image_url = soup.find('img', class_='img_jpg')['xhighres']
+
+    response = requests.get(image_url)
+    image = Image.open(BytesIO(response.content))
+
+    image_width, image_height = image.size
+
+    div_elements = soup.find_all("div", class_="pagerectangle")
+
+    total_width = 0
+    total_height = 0
+
+    os.makedirs(output_directory, exist_ok=True)
+
+    for div in div_elements:
+        top = int(div['style'].split(';')[0].split(':')[1].strip().replace('px', ''))
+        left = int(div['style'].split(';')[1].split(':')[1].strip().replace('px', ''))
+        width = int(div['style'].split(';')[2].split(':')[1].strip().replace('px', ''))
+        height = int(div['style'].split(';')[3].split(':')[1].strip().replace('px', ''))
+
+        total_width = max(total_width, left + width)
+        total_height = max(total_height, top + height)
+
+    rectangles = []
+    for i, div in enumerate(div_elements):
+        top = int(div['style'].split(';')[0].split(':')[1].strip().replace('px', '')) * image_height / total_height
+        left = int(div['style'].split(';')[1].split(':')[1].strip().replace('px', '')) * image_width / total_width
+        width = int(div['style'].split(';')[2].split(':')[1].strip().replace('px', '')) * image_width / total_width
+        height = int(div['style'].split(';')[3].split(':')[1].strip().replace('px', '')) * image_height / total_height
+
+        cropped_image = image.crop((left, top, left + width, top + height))
+        cropped_image.save(os.path.join(output_directory, f"article_{i+1}.jpg"))
+
+        rectangles.append((left, top, left + width, top + height))
+
+    draw = ImageDraw.Draw(image)
+
+    for rect in rectangles:
+        draw.rectangle(rect, outline="red")
+    
+    image.save(os.path.join(output_directory, "output_image.jpg"))
+
+    print("Total Width:", total_width)
+    print("Total Height:", total_height)
+    
 async def fetch_image_urls(session, api_url, area_data):
     async with session.get(api_url, params=area_data) as response:
         if response.status == 200:

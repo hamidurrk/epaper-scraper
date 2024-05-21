@@ -3,6 +3,7 @@ import requests
 import sys
 import re
 import psutil
+from bs4 import BeautifulSoup
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
@@ -20,6 +21,30 @@ def is_firefox_running():
         if "firefox" in proc.name().lower():
             return True
     return False
+
+def retain_specific_classes(page_html, specified_classes):
+    # Parse the HTML content
+    soup = BeautifulSoup(page_html, 'html.parser')
+
+    # Find all elements with specified classes
+    elements_to_retain = soup.find_all(class_=specified_classes)
+
+    print(elements_to_retain)
+    
+    # Remove all classes from the elements except the specified ones
+    for element in elements_to_retain:
+        classes_to_keep = set(element.get('class', [])) & set(specified_classes)
+        element['class'] = classes_to_keep
+
+    # Remove all other elements
+    elements_to_remove = [element for element in soup.find_all() if element not in elements_to_retain]
+    for element in elements_to_remove:
+        element.decompose()
+
+    # Convert the modified soup back to HTML string
+    modified_html = soup.prettify()
+
+    return modified_html
 
 def compare_dates(date_str1, date_str2):
     # Parse the dates

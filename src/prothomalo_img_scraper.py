@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import time
 import asyncio
@@ -23,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 base_url = f"https://epaper.prothomalo.com/Home/"
 print(f"Accessed Prothom Alo")
-driver.get(base_url)
+# driver.get(base_url)
 
 def scrape_jugantor(year: str, month: str, day: str):
     url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
@@ -175,51 +176,74 @@ def get_orgid():
 def process_for_article_image(html_content, output_directory):
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    image_url = soup.find('img', class_='img_jpg')['xhighres']
-
-    response = requests.get(image_url)
-    image = Image.open(BytesIO(response.content))
-
-    image_width, image_height = image.size
-
-    div_elements = soup.find_all("div", class_="pagerectangle")
-
-    total_width = 0
-    total_height = 0
+    pagerectangle_page_ids = set(div['pageid'] for div in soup.find_all("div", class_="pagerectangle"))
+    print("Pagerectangle page IDs:", pagerectangle_page_ids)
 
     os.makedirs(output_directory, exist_ok=True)
 
-    for div in div_elements:
-        top = int(div['style'].split(';')[0].split(':')[1].strip().replace('px', ''))
-        left = int(div['style'].split(';')[1].split(':')[1].strip().replace('px', ''))
-        width = int(div['style'].split(';')[2].split(':')[1].strip().replace('px', ''))
-        height = int(div['style'].split(';')[3].split(':')[1].strip().replace('px', ''))
+    for img_tag in soup.find_all('img', class_='img_jpg'):
+        img_page_id = img_tag.get('page_id')
+        
+        if img_page_id in pagerectangle_page_ids:
+            image_layer_elements = [div for div in soup.find_all("div", class_="image_layer") if div['id'].replace('image_layer', '') in pagerectangle_page_ids]
+            # print(image_layer_elements)
+            for image_layer in image_layer_elements:
+                print(f"Found image_layer with page_id: {image_layer['id'].replace('image_layer', '')}")
+                print(image_layer['style'])
+                style_string = image_layer['style']
+                width_pattern = r'width:\s*([\d.]+)px'
+                height_pattern = r'height:\s*([\d.]+)px'
+                
+                width_match = re.search(width_pattern, style_string)
+                height_match = re.search(height_pattern, style_string)
+                
+                total_width = float(width_match.group(1)) if width_match else None
+                total_height = float(height_match.group(1)) if height_match else None
+            
+            image_url = img_tag['xhighres']
+            response = requests.get(image_url)
+            image = Image.open(BytesIO(response.content))
+            # image = image.resize((869, 1373))
+            image_width, image_height = image.size
 
-        total_width = max(total_width, left + width)
-        total_height = max(total_height, top + height)
+            div_elements = [div for div in soup.find_all("div", class_="pagerectangle") if div['pageid'] == img_page_id]
 
-    rectangles = []
-    for i, div in enumerate(div_elements):
-        top = int(div['style'].split(';')[0].split(':')[1].strip().replace('px', '')) * image_height / total_height
-        left = int(div['style'].split(';')[1].split(':')[1].strip().replace('px', '')) * image_width / total_width
-        width = int(div['style'].split(';')[2].split(':')[1].strip().replace('px', '')) * image_width / total_width
-        height = int(div['style'].split(';')[3].split(':')[1].strip().replace('px', '')) * image_height / total_height
 
-        cropped_image = image.crop((left, top, left + width, top + height))
-        cropped_image.save(os.path.join(output_directory, f"article_{i+1}.jpg"))
+            for div in div_elements:
+                top = int(div['style'].split(';')[0].split(':')[1].strip().replace('px', ''))
+                left = int(div['style'].split(';')[1].split(':')[1].strip().replace('px', ''))
+                width = int(div['style'].split(';')[2].split(':')[1].strip().replace('px', ''))
+                height = int(div['style'].split(';')[3].split(':')[1].strip().replace('px', ''))
 
-        rectangles.append((left, top, left + width, top + height))
+                # total_width = 869
+                # total_height = 1373
 
-    draw = ImageDraw.Draw(image)
+            rectangles = []
+            for i, div in enumerate(div_elements):
+                top = int(div['style'].split(';')[0].split(':')[1].strip().replace('px', '')) * image_height / total_height
+                left = int(div['style'].split(';')[1].split(':')[1].strip().replace('px', '')) * image_width / total_width
+                width = int(div['style'].split(';')[2].split(':')[1].strip().replace('px', '')) * image_width / total_width
+                height = int(div['style'].split(';')[3].split(':')[1].strip().replace('px', '')) * image_height / total_height
 
-    for rect in rectangles:
-        draw.rectangle(rect, outline="red")
-    
-    image.save(os.path.join(output_directory, "output_image.jpg"))
+                cropped_image = image.crop((left, top, left + width, top + height))
+                cropped_image.save(os.path.join(output_directory, f"article_{img_page_id}_{i+1}.jpg"))
 
-    print("Total Width:", total_width)
-    print("Total Height:", total_height)
-    
+                rectangles.append((left, top, left + width, top + height))
+
+            draw = ImageDraw.Draw(image)
+
+            for rect in rectangles:
+                draw.rectangle(rect, outline="red")
+            
+            image.save(os.path.join(output_directory, f"output_image_{img_page_id}.jpg"))
+
+            print("Total Width:", total_width)
+            print("Total Height:", total_height)
+        else:
+            # print(f"Image with page_id {img_page_id} not found")
+            pass
+
+     
 async def fetch_image_urls(session, api_url, area_data):
     async with session.get(api_url, params=area_data) as response:
         if response.status == 200:
@@ -330,8 +354,22 @@ async def main(driver, year, month, day):
                     orgid = element.get_attribute("orgid")
                     orgid_values.append(orgid)
                 count += 1
-                if not orgid_values == prev_orgid_values or count > 300:
+                # print(orgid_values)
+                if count > 300:
+                    break
+                if not orgid_values == prev_orgid_values:
                     print(orgid_values)
+                    page_html = driver.page_source
+                    
+                    # with open("test.html", "w", encoding="utf-8") as file:
+                    #     file.write(page_html)
+
+                    # print("HTML content saved")
+                    
+                    # clean_html = retain_specific_classes(page_html, ['pagerectangle', 'img_jpg'])
+                    # print("cleaned:", clean_html)
+                    process_for_article_image(page_html, "cropped_images")
+                    
                     break
             except StaleElementReferenceException:
                 # print("StaleElementReferenceException: Element reference is stale. Retrying...")

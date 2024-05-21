@@ -11,11 +11,61 @@ from aiohttp.client_exceptions import ClientConnectorError
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from utils import load_info, save_info, check_internet_connection, gen_prompt, date_to_timestamp
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import StaleElementReferenceException
+from webdriver_manager.firefox import GeckoDriverManager
+from utils import *
+
+firefox_options = webdriver.FirefoxOptions()
+driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
 
 newspaper_base_url = 'https://www.jugantor.com/'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-test_date_str = date(2016, 3, 4)
+test_date_str = date(2012, 1, 1)
+
+def load_all_content(driver, wait_time=5):
+    previous_count = 0
+    while True:
+        # Find the current number of elements with the class 'K-MQV'
+        current_count = len(driver.find_elements(By.CLASS_NAME, 'K-MQV'))
+        
+        # Break the loop if the count of elements does not increase
+        if current_count == previous_count:
+            break
+
+        previous_count = current_count
+
+        try:
+            # Wait until the "Load More" button is visible and clickable
+            load_more_button = WebDriverWait(driver, wait_time).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, '.more._7ZpjE .load-more-content._7QoIj'))
+            )
+            # Click the "Load More" button
+            load_more_button.click()
+            # Wait for the new content to load
+            time.sleep(wait_time)
+        except:
+            # If no more "Load More" button is found or clickable, break the loop
+            break
+
+def extract_links(driver):
+    # Find all div elements with class 'news_item_content'
+    news_items = driver.find_elements(By.CLASS_NAME, 'news_item_content')
+
+    # Initialize a list to store the links
+    links = []
+
+    # Loop through each news item and extract the links
+    for item in news_items:
+        link_element = item.find_element(By.CSS_SELECTOR, 'a.title-link')
+        link = link_element.get_attribute('href')
+        links.append(link)
+
+    return links
 
 async def insert_articles(articles):
     try:
@@ -35,22 +85,29 @@ async def crawl(date_str):
     print(date_str)
     newspaper_archive_base_url = 'https://www.prothomalo.com/search?'  
     min, max = date_to_timestamp(date_str)  
-    url = newspaper_archive_base_url + "published-before=" + max + "&published-after=" + min
+    url = newspaper_archive_base_url + "published-before=" + str(max) + "&published-after=" + str(min)
+    print(url)
+    driver.get(url)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             archive_soup = BeautifulSoup(await response.text(), "lxml")
 
+    load_all_content(driver, 1)
     # print(response.text())
     links = []
-    links_tag = archive_soup.select('#archive-block .archive-newslist ul li a')
+    # links_tag = archive_soup.select('#archive-block .archive-newslist ul li a')
+    # links_tag = archive_soup.select('a')
+    links_tag = extract_links(driver)
     # print(links_tag)
 
     for link_tag in links_tag:
-        href = link_tag['href']
+        href = link_tag
         if 'today' in href or 'old' in href:
             # Replace 'http' with 'https' in the href attribute
             href = href.replace('http://', 'https://')
             links.append(href)
+    for link in links:
+        print(link)
     print(f"\n{len(links)} articles")
 
     tasks = []
@@ -107,7 +164,7 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
         no_exception_found = 1
-        if date_str not in scraped_dates:
+        if date_str in scraped_dates:
             print(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}")
             try:
                 await crawl(current_date)
@@ -143,5 +200,5 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
         print(f"\nScraping finished from {start_date} to {date_str}")
 
 
-# crawl(start_date)
-# asyncio.run(scrape_all_range(2013, 6, 1, 2015, 12, 31))
+# await crawl(test_date_str)
+asyncio.run(scrape_all_range(2012, 1, 1, 2012, 1, 1))

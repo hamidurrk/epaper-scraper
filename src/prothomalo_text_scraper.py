@@ -58,14 +58,14 @@ def extract_links(driver):
 
     # Initialize a list to store the links
     links = []
-
+    print(len(news_items))
     # Loop through each news item and extract the links
     for item in news_items:
         link_element = item.find_element(By.CSS_SELECTOR, 'a.title-link')
         link = link_element.get_attribute('href')
         links.append(link)
-
-    return links
+    secure_links = [re.sub(r'^http://', 'https://', link) for link in links]
+    return secure_links
 
 async def insert_articles(articles):
     try:
@@ -87,25 +87,25 @@ async def crawl(date_str):
     min, max = date_to_timestamp(date_str)  
     url = newspaper_archive_base_url + "published-before=" + str(max) + "&published-after=" + str(min)
     print(url)
-    driver.get(url)
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            archive_soup = BeautifulSoup(await response.text(), "lxml")
+    # driver.get(url)
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.get(url) as response:
+    #         archive_soup = BeautifulSoup(await response.text(), "lxml")
 
     load_all_content(driver, 1)
     # print(response.text())
     links = []
     # links_tag = archive_soup.select('#archive-block .archive-newslist ul li a')
     # links_tag = archive_soup.select('a')
-    links_tag = extract_links(driver)
+    links = extract_links(driver)
     # print(links_tag)
 
-    for link_tag in links_tag:
-        href = link_tag
-        if 'today' in href or 'old' in href:
-            # Replace 'http' with 'https' in the href attribute
-            href = href.replace('http://', 'https://')
-            links.append(href)
+    # for link_tag in links_tag:
+    #     href = link_tag
+    #     if 'today' in href or 'old' in href:
+    #         # Replace 'http' with 'https' in the href attribute
+    #         href = href.replace('http://', 'https://')
+    #         links.append(href)
     for link in links:
         print(link)
     print(f"\n{len(links)} articles")

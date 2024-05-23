@@ -969,3 +969,24 @@ Dynamically enable window occlusion 1
 1716478372243	geckodriver	INFO	Listening on 127.0.0.1:4266
 1716479214642	geckodriver	INFO	Listening on 127.0.0.1:4695
 1716479450405	geckodriver	INFO	Listening on 127.0.0.1:4933
+1716480488183	geckodriver	INFO	Listening on 127.0.0.1:5174
+1716480801150	geckodriver	INFO	Listening on 127.0.0.1:5675
+1716480843459	geckodriver	INFO	Listening on 127.0.0.1:6012
+1716480849428	geckodriver	INFO	Listening on 127.0.0.1:6025
+1716481558239	geckodriver	INFO	Listening on 127.0.0.1:6260
+1716482095891	geckodriver	INFO	Listening on 127.0.0.1:6376
+1716482367386	geckodriver	INFO	Listening on 127.0.0.1:7060
+1716484700215	geckodriver	INFO	Listening on 127.0.0.1:7594
+1716484787778	geckodriver	INFO	Listening on 127.0.0.1:7657
+1716489468724	geckodriver	INFO	Listening on 127.0.0.1:9753
+1716490695116	geckodriver	INFO	Listening on 127.0.0.1:10352
+1716490928317	geckodriver	INFO	Listening on 127.0.0.1:10433
+1716491034162	geckodriver	INFO	Listening on 127.0.0.1:10475
+1716491376603	geckodriver	INFO	Listening on 127.0.0.1:10567
+C:\Users\hamid\.wdm\drivers\geckodriver\win64\v0.34.0\geckodriver.exe: error: unexpected argument '--headless' found
+
+  tip: a similar argument exists: '--help'
+
+1716498148991	geckodriver	INFO	Listening on 127.0.0.1:13200
+1716498251570	geckodriver	INFO	Listening on 127.0.0.1:13239
+1716498423467	geckodriver	INFO	Listening on 127.0.0.1:13296

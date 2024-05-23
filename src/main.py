@@ -1,9 +1,11 @@
-# from scraping import *
-from extraction import *
-from utils import *
 import customtkinter as ctk
 import os
 import subprocess, sys
+import concurrent.futures
+import threading
+from extraction import *
+from utils import *
+from prothomalo_text_scraper import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -184,14 +186,14 @@ class App(ctk.CTk):
         self.prothomalo_subframe1.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.prothomalo_subframe1.grid_rowconfigure((0), weight=1)
         
-        functions = ["Select a function", "Function 1", "Function 2"]
+        functions = ["Select a function", "Function 1", "Scrape Website Text"]
         self.function_dropdown = ctk.CTkOptionMenu(self.prothomalo_subframe1, width= 200, values=functions, command=self.update_parameters)
         self.function_dropdown.grid(row=0, column=0)
 
         self.date_entry_1 = ctk.CTkEntry(self.prothomalo_subframe1, width=200, placeholder_text="Start Date: dd/mm/yyyy")
         self.date_entry_2 = ctk.CTkEntry(self.prothomalo_subframe1, width=200, placeholder_text="End Date: dd/mm/yyyy")
         
-        self.run_button = ctk.CTkButton(self.prothomalo_subframe1, text="Run", command=self.run)
+        self.run_button = ctk.CTkButton(self.prothomalo_subframe1, text="Run", command=self.execute_run)
         self.run_button.grid(row=0, column=3)
         
         # self.prothomalo_subframe2 = ctk.CTkFrame(self.prothomalo_frame, corner_radius=0, fg_color="white")
@@ -215,18 +217,38 @@ class App(ctk.CTk):
         # select default frame
         self.select_frame_by_name("prothomalo")
 
-    def run(self):
+    def execute_run(self):
         selected_function = self.function_dropdown.get()
         
-        if selected_function == "Function 1":
+        if selected_function == "Scrape Website Text":
             print("Selected function:", selected_function)
             start_date = self.date_entry_1.get()
-            is_valid_format, format_error = validate_date(start_date)
-            if not is_valid_format:
-                print(format_error)  # Or display the error message in your GUI
-            else:
-                day, month, year = convert_datestr_to_var(start_date)
-                print_date(day, month, year)
+            end_date = self.date_entry_2.get()
+            is_valid_format_1, format_error_1 = validate_date(start_date)
+            is_valid_format_2, format_error_2 = validate_date(end_date)
+            error_flag = False
+            
+            if not is_valid_format_1:
+                print(format_error_1)  
+                error_flag = True
+            if not is_valid_format_2:
+                print(format_error_2)
+                error_flag = True  
+            if not error_flag:
+                s_day, s_month, s_year = convert_datestr_to_var(start_date)
+                e_day, e_month, e_year = convert_datestr_to_var(end_date)
+                
+                print_date(s_day, s_month, s_year)
+                
+                self.scrape_all_range_palo_process(s_day, s_month, s_year, e_day, e_month, e_year)
+                # thread = threading.Thread(target=self.scrape_all_range_palo_process, args=(s_day, s_month, s_year, e_day, e_month, e_year))
+                # thread.start()
+                
+                # # Start the scraping function in a new process
+                # self.executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)
+                # print("Submitting task to executor...")
+                # self.future = self.executor.submit(self.scrape_all_range_palo_process, s_day, s_month, s_year, e_day, e_month, e_year)
+                # print("Task submitted successfully.")
     
     def update_parameters(self, selected_function):
         if selected_function == "Select a function":
@@ -235,7 +257,7 @@ class App(ctk.CTk):
         elif selected_function == "Function 1":
             self.date_entry_1.grid(row=0, column=1)
             self.date_entry_2.grid_remove()  
-        elif selected_function == "Function 2":
+        elif selected_function == "Scrape Website Text":
             self.date_entry_1.grid(row=0, column=1)
             self.date_entry_2.grid(row=0, column=2)
         
@@ -273,7 +295,14 @@ class App(ctk.CTk):
             gen_prompt("Firefox is Running")
         else:
             print("Error: Firefox is not running")
-        
+    
+    def scrape_all_range_palo_process(self, s_day, s_month, s_year, e_day, e_month, e_year):
+        print("Scrape all range process called!")
+        firefox_options = webdriver.FirefoxOptions()
+        driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
+        scraper = ProthomAloScraper(driver)
+        asyncio.run(scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
+        # asyncio.run(prothomalo_text_scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
     
     def change_appearance_mode_event(self, new_appearance_mode):
         ctk.set_appearance_mode(new_appearance_mode)
@@ -289,8 +318,11 @@ class App(ctk.CTk):
 
 
 if __name__ == "__main__":
-    # app = App()
-    # t = threading.Thread()
-    # t.start()
-    run_with_reloader(App(), "<Control-R>", "<Control-r>")
+    app = App()
+    t = threading.Thread(target=app.start())
+    t.start()
+    # thread = threading.Thread(target=run_with_reloader, args=(App(), "<Control-R>", "<Control-r>"))
+    # thread.start()
+    # run_with_reloader(App(), "<Control-R>", "<Control-r>")
+    # app.start()
     

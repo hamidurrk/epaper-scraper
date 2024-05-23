@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_PATH = os.path.join(BASE_DIR, "files", 'jugantor.db')
+DATABASE_PATH = os.path.join(BASE_DIR, "files", 'prothomalo.db')
 conn = sqlite3.connect(DATABASE_PATH)
 
 def create_table():

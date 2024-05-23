@@ -24,42 +24,42 @@ driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), servi
 
 newspaper_base_url = 'https://www.jugantor.com/'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_PATH = os.path.join(BASE_DIR, "files", 'prothomalo.db')
+stored_dates = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates_prothomalo.txt")
 
 test_date_str = date(2012, 1, 1)
 
 def load_all_content(driver, wait_time=5):
     previous_count = 0
+    count = 0
     while True:
-        # Find the current number of elements with the class 'K-MQV'
         current_count = len(driver.find_elements(By.CLASS_NAME, 'K-MQV'))
         
-        # Break the loop if the count of elements does not increase
         if current_count == previous_count:
+            count+=1
+        else:
+            count = 0
+            
+        if count >= 10:
             break
 
         previous_count = current_count
 
         try:
-            # Wait until the "Load More" button is visible and clickable
             load_more_button = WebDriverWait(driver, wait_time).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, '.more._7ZpjE .load-more-content._7QoIj'))
             )
-            # Click the "Load More" button
             load_more_button.click()
-            # Wait for the new content to load
             time.sleep(wait_time)
         except:
-            # If no more "Load More" button is found or clickable, break the loop
             break
 
 def extract_links(driver):
-    # Find all div elements with class 'news_item_content'
     news_items = driver.find_elements(By.CLASS_NAME, 'news_item_content')
 
-    # Initialize a list to store the links
     links = []
     print(len(news_items))
-    # Loop through each news item and extract the links
+    
     for item in news_items:
         link_element = item.find_element(By.CSS_SELECTOR, 'a.title-link')
         link = link_element.get_attribute('href')
@@ -69,12 +69,12 @@ def extract_links(driver):
 
 async def insert_articles(articles):
     try:
-        conn = sqlite3.connect('prothomalo.db')
+        conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
 
         with conn:
             c.executemany("INSERT INTO prothomalo (year, date, article_title, article_body, wordcount, url) VALUES (?, ?, ?, ?, ?, ?)", articles)
-        # print("Data inserted successfully")
+        print("Data inserted successfully")
     except Exception as e:
         print("Did not initiate data entry:", e)
     finally:
@@ -87,27 +87,16 @@ async def crawl(date_str):
     min, max = date_to_timestamp(date_str)  
     url = newspaper_archive_base_url + "published-before=" + str(max) + "&published-after=" + str(min)
     print(url)
-    # driver.get(url)
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.get(url) as response:
-    #         archive_soup = BeautifulSoup(await response.text(), "lxml")
+    
+    if not is_open(driver, url):
+        driver.get(url)
+        
 
-    load_all_content(driver, 1)
-    # print(response.text())
+    load_all_content(driver, 0.5)
     links = []
-    # links_tag = archive_soup.select('#archive-block .archive-newslist ul li a')
-    # links_tag = archive_soup.select('a')
     links = extract_links(driver)
-    # print(links_tag)
-
-    # for link_tag in links_tag:
-    #     href = link_tag
-    #     if 'today' in href or 'old' in href:
-    #         # Replace 'http' with 'https' in the href attribute
-    #         href = href.replace('http://', 'https://')
-    #         links.append(href)
-    for link in links:
-        print(link)
+    # for link in links:
+    #     print(link)
     print(f"\n{len(links)} articles")
 
     tasks = []
@@ -117,7 +106,8 @@ async def crawl(date_str):
         tasks.append(task)
 
     await asyncio.gather(*tasks)
-    # await insert_articles(articles)
+    print(len(articles), "Articles Gathered.")
+    await insert_articles(articles)
 
 
 async def get_article(url, articles, date):
@@ -131,22 +121,24 @@ async def get_article(url, articles, date):
     except Exception as e:
         print("Error: ", e)
     soup = BeautifulSoup(article_data, "lxml")
-    article_title_obj = soup.find(id='news-title')
+    article_title_obj = soup.find('div', class_='story-title-info')
     if article_title_obj is not None:
-        article_title = article_title_obj.get_text().strip()
+        article_title_obj = article_title_obj.find('h1')
+        article_title = article_title_obj.get_text(strip=True)
         article_title = re.sub(r'\s+', ' ', article_title)
 
-        article_body = soup.find(id='myText').get_text().strip()
+        article_body = soup.find('div', class_='story-element')
+        article_body = article_body.find('p')
+        article_body = article_body.get_text(strip=True)
         article_body = re.sub(r'\s+', ' ', article_body)
 
         num_words = len(article_body.split())
-        # print(article_title)
-        # print(f"\n{num_words} words")
+        print(article_title)
+        print(f"{num_words} words\n")
         articles.append((date.year, date, article_title, article_body, num_words, url))
 
 
 async def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
-    file_path = os.path.join(BASE_DIR, "downloaded_articles", "bs4_scraped_dates.txt")
     start_date = date(start_year, start_month, start_day)
     end_date = date(end_year, end_month, end_day)
 
@@ -154,7 +146,7 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
 
     pbar = tqdm.tqdm(total=total_iterations, desc="Progress", unit="paper")
     current_date = start_date
-    scraped_dates = load_info(file_path)
+    scraped_dates = load_info(stored_dates)
     count = 0
     while current_date <= end_date:
         # os.system('cls' if os.name == 'nt' else 'clear')
@@ -164,7 +156,7 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
         day = str(current_date.day).zfill(2)
         date_str = f"{year}-{month}-{day}"
         no_exception_found = 1
-        if date_str in scraped_dates:
+        if date_str not in scraped_dates:
             print(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}")
             try:
                 await crawl(current_date)
@@ -185,7 +177,7 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
             if no_exception_found:
                 current_date += timedelta(days=1)
                 scraped_dates.add(date_str)
-                save_info({date_str}, file_path)
+                save_info({date_str}, stored_dates)
             # time.sleep(0.1)
         else:
             # os.system('cls' if os.name == 'nt' else 'clear')
@@ -201,4 +193,5 @@ async def scrape_all_range(start_year, start_month, start_day, end_year, end_mon
 
 
 # await crawl(test_date_str)
+
 asyncio.run(scrape_all_range(2012, 1, 1, 2012, 1, 1))

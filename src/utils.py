@@ -1,11 +1,9 @@
-import os
-import requests
-import sys
-import re
-import psutil
+import os, requests, sys, re, psutil, subprocess
 from bs4 import BeautifulSoup
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def check_internet_connection():
     try:
@@ -129,3 +127,19 @@ def date_to_timestamp(input_date):
     min_timestamp = int(min_combined_datetime.timestamp() * 1000)  
     max_timestamp = int(max_combined_datetime.timestamp() * 1000)  
     return min_timestamp, max_timestamp
+
+def run_firefox():
+    bat_file_path = os.path.join(BASE_DIR, "start_firefox.bat")
+    subprocess.run(bat_file_path, shell=True)
+    if is_firefox_running():
+        gen_prompt("Firefox is Running")
+    else:
+        print("Error: Firefox is not running")
+        
+def is_open(driver, url):
+    current_url = driver.current_url
+    
+    if current_url == url:
+        return True
+    else:
+        return False

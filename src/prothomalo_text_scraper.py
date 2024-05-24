@@ -97,7 +97,7 @@ class ProthomAloScraper:
 
         await asyncio.gather(*tasks)
         print(f"{len(articles)} articles gathered from {len(links)} links")
-        # await self.insert_articles(articles)
+        await self.insert_articles(articles)
 
     async def get_article(self, url, articles, date):
         try:
@@ -176,4 +176,4 @@ if __name__ == "__main__":
     firefox_options = webdriver.FirefoxOptions()
     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
     scraper = ProthomAloScraper(driver)
-    asyncio.run(scraper.scrape_all_range_palo(2023, 1, 18, 2023, 1, 18))
+    asyncio.run(scraper.scrape_all_range_palo(2012, 1, 1, 2023, 12, 31))

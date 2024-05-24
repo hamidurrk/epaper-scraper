@@ -97,7 +97,7 @@ class ProthomAloScraper:
 
         await asyncio.gather(*tasks)
         print(f"{len(articles)} articles gathered from {len(links)} links")
-        await self.insert_articles(articles)
+        # await self.insert_articles(articles)
 
     async def get_article(self, url, articles, date):
         try:
@@ -109,20 +109,19 @@ class ProthomAloScraper:
             return
         
         soup = BeautifulSoup(article_data, "lxml")
-        article_title_obj = soup.find('div', class_='story-title-info')
+        article_title_obj = soup.find('h1', class_='IiRps')
         if article_title_obj is not None:
-            article_title_obj = article_title_obj.find('h1')
             article_title = article_title_obj.get_text(strip=True)
             article_title = re.sub(r'\s+', ' ', article_title)
 
-            article_body = soup.find('div', class_='story-element')
-            article_body = article_body.find('p')
-            article_body = article_body.get_text(strip=True)
-            article_body = re.sub(r'\s+', ' ', article_body)
+            p_tags = soup.find_all('p')
+            article_body = ' '.join([p.get_text(strip=True) for p in p_tags])   
 
             num_words = len(article_body.split())
+            # print(url)
             # print(article_title)
-            # print(f"{num_words} words\n")
+            # print(f"{num_words} words")
+            # print(article_body, "\n")
             articles.append((date.year, date, article_title, article_body, num_words, url))
 
     async def scrape_all_range_palo(self, start_year, start_month, start_day, end_year, end_month, end_day):
@@ -177,4 +176,4 @@ if __name__ == "__main__":
     firefox_options = webdriver.FirefoxOptions()
     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
     scraper = ProthomAloScraper(driver)
-    asyncio.run(scraper.scrape_all_range_palo(2012, 1, 1, 2012, 12, 31))
+    asyncio.run(scraper.scrape_all_range_palo(2023, 1, 18, 2023, 1, 18))

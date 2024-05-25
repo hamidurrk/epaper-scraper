@@ -4,6 +4,7 @@ import re
 import sys
 import sqlite3
 import aiohttp
+from asyncio import Semaphore
 import tqdm
 import time
 from datetime import date, timedelta
@@ -23,6 +24,7 @@ class ProthomAloScraper:
         self.BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.DATABASE_PATH = os.path.join(self.BASE_DIR, "files", 'prothomalo.db')
         self.stored_dates = os.path.join(self.BASE_DIR, "downloaded_articles", "scraped_dates_prothomalo.txt")
+        self.sem = Semaphore(100)
         self.test_date_str = date(2012, 1, 1)
 
     def load_all_content(self, wait_time=5):
@@ -111,9 +113,10 @@ class ProthomAloScraper:
 
     async def get_article(self, url, articles, date):
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    article_data = await response.text()
+            async with self.sem:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        article_data = await response.text()
         except Exception as e:
             print("Error: ", e)
             while True:
@@ -193,4 +196,4 @@ if __name__ == "__main__":
     firefox_options = webdriver.FirefoxOptions()
     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
     scraper = ProthomAloScraper(driver)
-    asyncio.run(scraper.scrape_all_range_palo(2013, 1, 1, 2023, 12, 31))
+    asyncio.run(scraper.scrape_all_range_palo(2013, 6, 12, 2023, 12, 31))

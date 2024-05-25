@@ -90,12 +90,14 @@ class ProthomAloScraper:
         print(f"\n{len(links)} links")
         
         if len(links) <= 5:
-            if check_internet_connection():
-                print("Internet connection is available.")
-            else:
-                print("No internet connection.")
-                time.sleep(2)
-                pass
+            while True:
+                if check_internet_connection():
+                    print("Internet connection is available.")
+                    break
+                else:
+                    print("No internet connection.")
+                    time.sleep(2)
+                    pass
 
         tasks = []
         articles = []
@@ -114,6 +116,13 @@ class ProthomAloScraper:
                     article_data = await response.text()
         except Exception as e:
             print("Error: ", e)
+            while True:
+                if check_internet_connection():
+                    print("Internet connection is available.")
+                    break
+                else:
+                    print("No internet connection.")
+                    time.sleep(2)
             return
         
         soup = BeautifulSoup(article_data, "lxml")

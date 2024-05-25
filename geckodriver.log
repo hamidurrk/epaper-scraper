@@ -1007,3 +1007,6 @@ C:\Users\hamid\.wdm\drivers\geckodriver\win64\v0.34.0\geckodriver.exe: error: un
 1716546735798	geckodriver	INFO	Listening on 127.0.0.1:3848
 1716546751225	geckodriver	INFO	Listening on 127.0.0.1:3864
 1716557544879	geckodriver	INFO	Listening on 127.0.0.1:6627
+1716588432267	geckodriver	INFO	Listening on 127.0.0.1:1402
+1716625607412	geckodriver	INFO	Listening on 127.0.0.1:3604
+1716648050775	geckodriver	INFO	Listening on 127.0.0.1:13753

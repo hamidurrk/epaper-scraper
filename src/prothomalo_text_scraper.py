@@ -162,6 +162,9 @@ class ProthomAloScraper:
             no_exception_found = 1
             if date_str not in scraped_dates:
                 print(f"Attempting New Scrape | Year: {year}, Month: {month}, Day: {day}")
+                now = datetime.now()
+                current_time = now.strftime("%H:%M:%S")
+                print(f"Current Time: {current_time}")
                 try:
                     await self.crawl(current_date)
                     pbar.update(1)

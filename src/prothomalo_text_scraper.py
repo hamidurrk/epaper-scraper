@@ -199,4 +199,4 @@ if __name__ == "__main__":
     firefox_options = webdriver.FirefoxOptions()
     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
     scraper = ProthomAloScraper(driver)
-    asyncio.run(scraper.scrape_all_range_palo(2013, 6, 12, 2023, 12, 31))
+    asyncio.run(scraper.scrape_all_range_palo(2013, 6, 12, 2024, 5, 29))

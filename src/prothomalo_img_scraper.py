@@ -252,7 +252,7 @@ async def main(driver, year, month, day):
     print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
 
 asyncio.run(main(driver, "2012", "01", "01"))
-s
+
 def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
     file_path = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates.txt")
     start_year = int(start_year)

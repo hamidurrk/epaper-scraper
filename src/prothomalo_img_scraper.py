@@ -26,110 +26,6 @@ base_url = f"https://epaper.prothomalo.com/Home/"
 print(f"Accessed Prothom Alo")
 # driver.get(base_url)
 
-def scrape_jugantor(year: str, month: str, day: str):
-    url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
-    print(f"\nAccessing: {url}")
-    driver.get(url)
-    try:
-        print("\nURL opened")
-        image_elements = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-        )
-    except:
-        print(f"\nCouldn't open URL")
-        pass
-        
-    ul_element = driver.find_element_by_css_selector("ul.jPag-pages")
-    li_elements = ul_element.find_elements_by_tag_name("li")
-    num_pages = len(li_elements)
-    
-    for i in range(1, num_pages + 1):
-        folder_path = f"downloaded_articles/jugantor/{year}/{month}/{day}/page_{i}"
-        
-        try:
-            image_elements = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-            )
-        except:
-            pass
-        
-        if i != 1:
-            page_element = f"//*[@id='demo2']/div[2]/ul/li[{i}]/a"
-            page = driver.find_element_by_xpath(page_element)
-            page.click()
-            try:
-                image_elements = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-                )
-            except:
-                print("Error: Paper images didn't load")
-                pass
-        
-        gen_prompt(f"Accessed Page {i}")
-        
-        urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]   
-        modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
-         
-        download_images(modified_urls, folder_path)
-    
-    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
-    gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
-
-def scrape_old_jugantor(year: str, month: str, day: str):
-    url = f"https://old-epaper.jugantor.com/{year}/{month}/{day}/index.php"
-    print(f"\nAccessing: {url}")
-    driver.get(url)
-    try:
-        print("\nURL opened")
-        image_elements = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-        )
-    except:
-        print(f"\nCouldn't open URL")
-        pass
-            
-    i = 0
-    while(True):
-        i += 1
-        folder_path  = os.path.join(BASE_DIR, "downloaded_articles", "jugantor", year, month, day, f"page_{i}")
-        
-        try:
-            image_elements = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-            )
-        except:
-            break
-              
-        if i != 1:
-            next_page_link = driver.find_element_by_xpath("//a[@onclick='goToNextPage();return false;']")
-            next_page_link.click()
-            
-            try:
-                error_element = driver.find_element(By.XPATH, "//h1[contains(text(), 'Not Found')]")
-                if error_element:
-                    break
-            except:
-                pass
-            
-            try:
-                image_elements = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "newsImg"))
-                )
-            except Exception as e:
-                print("Error: Paper images didn't load", e)
-                break
-        
-        gen_prompt(f"Accessed Page {i}")
-        
-        urls=[link.get_attribute("src")for link in driver.find_elements_by_xpath("//img[contains(@class,'newsImg')]")]   
-        modified_urls = [url.rsplit('/', 1)[0] + '/details/' + url.rsplit('/', 1)[1] for url in urls]
-        
-        download_images(modified_urls, folder_path)
-    
-    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
-    gen_prompt(f"Success: Scraped JUGANTOR-{year}/{month}/{day}", char="#")
-   
-# ------------------------------------- scrape_recent_jugantor ----------------------------------------/
 def wait_until_visible(class_name):
     try:
         image_elements = WebDriverWait(driver, 10).until(
@@ -139,7 +35,6 @@ def wait_until_visible(class_name):
         print(e)
         # raise Exception(f"\nCouldn't open URL: '{class_name}' not visible")
         
-    
 def load_paper(year: str, month: str, day: str): 
     wait_until_visible("pagerectangle")
     date_to_set = f"{day}/{month}/{year}"  
@@ -242,7 +137,6 @@ def process_for_article_image(html_content, output_directory):
         else:
             # print(f"Image with page_id {img_page_id} not found")
             pass
-
      
 async def fetch_image_urls(session, api_url, area_data):
     async with session.get(api_url, params=area_data) as response:
@@ -253,20 +147,6 @@ async def fetch_image_urls(session, api_url, area_data):
             return img_urls
         else:
             return []
-
-async def scrape_page(session, api_url, area_data_list):
-    tasks = []
-    for area_data in area_data_list:
-        tasks.append(fetch_image_urls(session, api_url, area_data))
-    
-    try:
-        img_urls = await asyncio.gather(*tasks)
-        img_urls = [url for sublist in img_urls for url in sublist]
-        print("API requests successful")
-        return img_urls
-    except Exception as e:
-        print("API request failed!")
-        return None
 
 async def main(driver, year, month, day):
     wait_until_visible("article_list_date_mobile")
@@ -361,39 +241,18 @@ async def main(driver, year, month, day):
                     print(orgid_values)
                     page_html = driver.page_source
                     
-                    # with open("test.html", "w", encoding="utf-8") as file:
-                    #     file.write(page_html)
-
-                    # print("HTML content saved")
-                    
-                    # clean_html = retain_specific_classes(page_html, ['pagerectangle', 'img_jpg'])
-                    # print("cleaned:", clean_html)
                     process_for_article_image(page_html, "cropped_images")
-                    
                     break
             except StaleElementReferenceException:
                 # print("StaleElementReferenceException: Element reference is stale. Retrying...")
                 continue
         prev_orgid_values = orgid_values
             
-            # area_data_list = []
-            # for area_tag in area_tags:
-            #     data_mapid = area_tag.get_attribute('data-mapid')
-            #     coords = area_tag.get_attribute('coords')
-            #     area_data_list.append({'coords': coords, 'edition_id': edition_id, 'ed_map_id': data_mapid})
-            # print("\nAPI params extracted. Making API requests...")
-            
-            # img_urls = await scrape_page(session, api_url, area_data_list)
-            
-            # download_images(img_urls, folder_path)
-            # clear_last_lines(5)
 
     print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
 
 asyncio.run(main(driver, "2012", "01", "01"))
-
-# ------------------------------------- scrape_recent_jugantor end ----------------------------------------/
-
+s
 def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
     file_path = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates.txt")
     start_year = int(start_year)
@@ -455,5 +314,3 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
         print(f"\nScraping finished from {start_date} to {end_date}")
     else: 
         print(f"\nScraping finished from {start_date} to {date_str}")
-  
-

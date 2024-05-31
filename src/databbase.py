@@ -116,5 +116,5 @@ def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
 # delete_all_rows("jugantor")
 # drop_table("jugantor")
 
-# remove_rows_below_wordcount_threshold("jugantor", 50)
+# remove_rows_below_wordcount_threshold("prothomalo", 10)
 # sqlite_to_excel(DATABASE_PATH, 'jugantor', 'date', os.path.join(BASE_DIR, 'jugantor.xlsx'))

@@ -300,7 +300,7 @@ class App(ctk.CTk):
         print("Scrape all range process called!")
         firefox_options = webdriver.FirefoxOptions()
         driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
-        scraper = ProthomAloScraper(driver)
+        scraper = ProthomAloTextScraper(driver)
         asyncio.run(scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
         # asyncio.run(prothomalo_text_scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
     

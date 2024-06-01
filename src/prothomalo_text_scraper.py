@@ -17,7 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.firefox import GeckoDriverManager
 from utils import *
 
-class ProthomAloScraper:
+class ProthomAloTextScraper:
     def __init__(self, driver):
         self.driver = driver
         self.BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -197,5 +197,5 @@ class ProthomAloScraper:
 if __name__ == "__main__":
     firefox_options = webdriver.FirefoxOptions()
     driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
-    scraper = ProthomAloScraper(driver)
+    scraper = ProthomAloTextScraper(driver)
     asyncio.run(scraper.scrape_all_range_palo(2013, 6, 12, 2024, 5, 29))

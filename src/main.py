@@ -189,7 +189,7 @@ class App(ctk.CTk):
         self.prothomalo_subframe1.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.prothomalo_subframe1.grid_rowconfigure((0), weight=1)
         
-        functions = ["Select a function", "Function 1", "Scrape Website Text", "Scrape Epaper Article Images"]  
+        functions = ["Select a function", "Scrape Website Text", "Scrape Epaper Article Images"]  
         self.function_dropdown = ctk.CTkOptionMenu(self.prothomalo_subframe1, width= 200, values=functions, command=self.update_parameters)
         self.function_dropdown.grid(row=0, column=0)
 

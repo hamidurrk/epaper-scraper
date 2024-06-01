@@ -1,6 +1,6 @@
 # Epaper Scraper
 
-This is a Python-based web scraper for extracting data from online newspapers. Tested on [Jugantor Newspaper](https://epaper.jugantor.com/) from 2012 to 2024 in a Windows 11 machine.
+This is a Python-based web scraper for extracting data from online newspapers. Tested on [Jugantor](https://epaper.jugantor.com/) and [Prothom Alo](https://epaper.prothomalo.com/Home/) newspaper from 2012 to 2024 in a Windows 11 machine.
 
 ## Installation
 
@@ -64,12 +64,24 @@ conda install cudatoolkit
 
 ## Usage
 
-To use the epaper-scraper, follow these steps:
+There are two ways to use this software: **With GUI** and **Without GUI**.
+
+To use the epaper-scraper **With GUI**, follow these steps:
+
+1. Run `main.py` from `src`, which will initiate a desktop application like the following one:
+
+![Epaper Scraper Interface](resources/gui_ss_1.png)
+
+2. Navigate through the interface for using the supported capabilities of the software.
+
+*__Note:__ The GUI lacks advanced features which are available in the "Without GUI" version. The interface is being constantly updated to implement these features.*
+
+To use the **advanced features** of epaper-scraper **Without GUI**, follow these steps:
 
 1. Click and run `start_firefox.bat` file. Alternatively run the commands from `cmd.txt`. This will initilize a firefox browser instance. 
 
-1. Call functions and adjust parameters in `main.py` and run:
-
+2. Call functions and adjust parameters from the python files of `src` and run.
+Example:
     ```bash
     python main.py
     ```

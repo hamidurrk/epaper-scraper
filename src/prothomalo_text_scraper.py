@@ -20,7 +20,6 @@ from utils import *
 class ProthomAloScraper:
     def __init__(self, driver):
         self.driver = driver
-        self.newspaper_base_url = 'https://www.jugantor.com/'
         self.BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.DATABASE_PATH = os.path.join(self.BASE_DIR, "files", 'prothomalo.db')
         self.stored_dates = os.path.join(self.BASE_DIR, "downloaded_articles", "scraped_dates_prothomalo.txt")

@@ -22,9 +22,11 @@ firefox_options = webdriver.FirefoxOptions()
 driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-base_url = f"https://epaper.prothomalo.com/Home/"
+base_url = "https://epaper.prothomalo.com/Home/"
+target_url = "https://epaper.prothomalo.com/Home/DIndex"
+if not target_url in driver.current_url:
+    driver.get(base_url)
 print(f"Accessed Prothom Alo")
-# driver.get(base_url)
 
 def wait_until_visible(class_name):
     try:
@@ -72,7 +74,7 @@ def process_for_article_image(html_content, output_directory):
     soup = BeautifulSoup(html_content, 'html.parser')
 
     pagerectangle_page_ids = set(div['pageid'] for div in soup.find_all("div", class_="pagerectangle"))
-    print("Pagerectangle page IDs:", pagerectangle_page_ids)
+    # print("Pagerectangle page IDs:", pagerectangle_page_ids)
 
     os.makedirs(output_directory, exist_ok=True)
 
@@ -84,7 +86,7 @@ def process_for_article_image(html_content, output_directory):
             # print(image_layer_elements)
             for image_layer in image_layer_elements:
                 print(f"Found image_layer with page_id: {image_layer['id'].replace('image_layer', '')}")
-                print(image_layer['style'])
+                # print(image_layer['style'])
                 style_string = image_layer['style']
                 width_pattern = r'width:\s*([\d.]+)px'
                 height_pattern = r'height:\s*([\d.]+)px'
@@ -130,13 +132,10 @@ def process_for_article_image(html_content, output_directory):
             for rect in rectangles:
                 draw.rectangle(rect, outline="red")
             
-            image.save(os.path.join(output_directory, f"output_image_{img_page_id}.jpg"))
+            image.save(os.path.join(output_directory, "bounding_boxes", f"bb_{img_page_id}.jpg"))
 
             print("Total Width:", total_width)
             print("Total Height:", total_height)
-        else:
-            # print(f"Image with page_id {img_page_id} not found")
-            pass
      
 async def fetch_image_urls(session, api_url, area_data):
     async with session.get(api_url, params=area_data) as response:
@@ -223,7 +222,7 @@ async def main(driver, year, month, day):
             if page_wrapper_element.value_of_css_property("display") != "none":
                 dom_page_num.append(page_wrapper_element.get_attribute("page"))
         dom_page_num = str(dom_page_num[:1])
-        print(dom_page_num)
+        # print(dom_page_num)
 
         count = 0
         while True:
@@ -238,10 +237,10 @@ async def main(driver, year, month, day):
                 if count > 300:
                     break
                 if not orgid_values == prev_orgid_values:
-                    print(orgid_values)
+                    # print(orgid_values)
                     page_html = driver.page_source
                     
-                    process_for_article_image(page_html, "cropped_images")
+                    process_for_article_image(page_html, folder_path)    
                     break
             except StaleElementReferenceException:
                 # print("StaleElementReferenceException: Element reference is stale. Retrying...")
@@ -249,12 +248,12 @@ async def main(driver, year, month, day):
         prev_orgid_values = orgid_values
             
 
-    print(f"\nSuccess: Scraped JUGANTOR-{year}/{month}/{day} \n")
+    print(f"\nSuccess: Scraped PROTHOMALO-{year}/{month}/{day} \n")
 
 asyncio.run(main(driver, "2012", "01", "01"))
 
 def scrape_all_range(start_year, start_month, start_day, end_year, end_month, end_day):
-    file_path = os.path.join(BASE_DIR, "downloaded_articles", "scraped_dates.txt")
+    file_path = os.path.join(BASE_DIR, "downloaded_articles", "img_scraper_dates_prothomalo.txt")
     start_year = int(start_year)
     start_month = int(start_month)
     start_day = int(start_day)
@@ -273,7 +272,7 @@ def scrape_all_range(start_year, start_month, start_day, end_year, end_month, en
     scraped_dates = load_info(file_path)
     count = 0
     while current_date <= end_date:
-        os.system('cls' if os.name == 'nt' else 'clear')
+        # os.system('cls' if os.name == 'nt' else 'clear')
         pbar.update(1)
         sys.stdout.write("\n\n")
         year = str(current_date.year)

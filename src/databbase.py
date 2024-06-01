@@ -77,7 +77,7 @@ def divide_df_by_year_and_save_to_excel(df, directory, paper_name):
         
         year_df.to_excel(file_path, index=False)
 
-def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
+def sqlite_to_excel(database_file, table_name, sort_column):
     conn = sqlite3.connect(database_file)
     cursor = conn.cursor()
     try:
@@ -100,10 +100,10 @@ def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
         print(df.describe(include='all'))
         
         print("Converting to xlsx...")
-        divide_df_by_year_and_save_to_excel(df, os.path.join(BASE_DIR, "files"), "jugantor")
+        divide_df_by_year_and_save_to_excel(df, os.path.join(BASE_DIR, "files"), table_name)
         # df.to_excel(excel_file)
         
-        print(f"Data from '{table_name}' table sorted by '{sort_column}' column has been successfully exported to '{excel_file}'.")
+        print(f"Data from '{table_name}' table sorted by '{sort_column}' column has been successfully exported to '{os.path.join(BASE_DIR, "files")}'.")
     
     except sqlite3.Error as e:
         print("Error:", e)
@@ -117,4 +117,4 @@ def sqlite_to_excel(database_file, table_name, sort_column, excel_file):
 # drop_table("jugantor")
 
 # remove_rows_below_wordcount_threshold("prothomalo", 10)
-# sqlite_to_excel(DATABASE_PATH, 'jugantor', 'date', os.path.join(BASE_DIR, 'jugantor.xlsx'))
+sqlite_to_excel(DATABASE_PATH, 'prothomalo', 'date')

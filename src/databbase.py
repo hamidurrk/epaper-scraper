@@ -117,4 +117,4 @@ def sqlite_to_excel(database_file, table_name, sort_column):
 # drop_table("jugantor")
 
 # remove_rows_below_wordcount_threshold("prothomalo", 10)
-sqlite_to_excel(DATABASE_PATH, 'prothomalo', 'date')
+# sqlite_to_excel(DATABASE_PATH, 'prothomalo', 'date')

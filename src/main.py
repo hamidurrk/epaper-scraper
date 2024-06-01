@@ -6,7 +6,10 @@ import threading
 from extraction import *
 from utils import *
 from prothomalo_text_scraper import *
+from prothomalo_img_scraper import *
+import concurrent.futures
 
+executor = concurrent.futures.ThreadPoolExecutor(max_workers=None)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ctk.set_default_color_theme("blue")
@@ -186,7 +189,7 @@ class App(ctk.CTk):
         self.prothomalo_subframe1.grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.prothomalo_subframe1.grid_rowconfigure((0), weight=1)
         
-        functions = ["Select a function", "Function 1", "Scrape Website Text"]
+        functions = ["Select a function", "Function 1", "Scrape Website Text", "Scrape Epaper Article Images"]  
         self.function_dropdown = ctk.CTkOptionMenu(self.prothomalo_subframe1, width= 200, values=functions, command=self.update_parameters)
         self.function_dropdown.grid(row=0, column=0)
 
@@ -240,7 +243,8 @@ class App(ctk.CTk):
                 
                 print_date(s_day, s_month, s_year)
                 
-                self.scrape_all_range_palo_process(s_day, s_month, s_year, e_day, e_month, e_year)
+                # self.scrape_all_range_palo_text_process(s_day, s_month, s_year, e_day, e_month, e_year)
+                executor.submit(self.scrape_all_range_palo_text_process, s_day, s_month, s_year, e_day, e_month, e_year)
                 # thread = threading.Thread(target=self.scrape_all_range_palo_process, args=(s_day, s_month, s_year, e_day, e_month, e_year))
                 # thread.start()
                 
@@ -249,6 +253,28 @@ class App(ctk.CTk):
                 # print("Submitting task to executor...")
                 # self.future = self.executor.submit(self.scrape_all_range_palo_process, s_day, s_month, s_year, e_day, e_month, e_year)
                 # print("Task submitted successfully.")
+        
+        if selected_function == "Scrape Epaper Article Images":
+            print("Selected function:", selected_function)
+            start_date = self.date_entry_1.get()
+            end_date = self.date_entry_2.get()
+            is_valid_format_1, format_error_1 = validate_date(start_date)
+            is_valid_format_2, format_error_2 = validate_date(end_date)
+            error_flag = False
+            
+            if not is_valid_format_1:
+                print(format_error_1)  
+                error_flag = True
+            if not is_valid_format_2:
+                print(format_error_2)
+                error_flag = True  
+            if not error_flag:
+                s_day, s_month, s_year = convert_datestr_to_var(start_date)
+                e_day, e_month, e_year = convert_datestr_to_var(end_date)
+                
+                print_date(s_day, s_month, s_year)
+                executor.submit(self.scrape_all_range_palo_img_process, s_day, s_month, s_year, e_day, e_month, e_year)
+                # self.scrape_all_range_palo_img_process(s_day, s_month, s_year, e_day, e_month, e_year)
     
     def update_parameters(self, selected_function):
         if selected_function == "Select a function":
@@ -258,6 +284,9 @@ class App(ctk.CTk):
             self.date_entry_1.grid(row=0, column=1)
             self.date_entry_2.grid_remove()  
         elif selected_function == "Scrape Website Text":
+            self.date_entry_1.grid(row=0, column=1)
+            self.date_entry_2.grid(row=0, column=2)
+        elif selected_function == "Scrape Epaper Article Images":
             self.date_entry_1.grid(row=0, column=1)
             self.date_entry_2.grid(row=0, column=2)
         
@@ -296,12 +325,20 @@ class App(ctk.CTk):
         else:
             print("Error: Firefox is not running")
     
-    def scrape_all_range_palo_process(self, s_day, s_month, s_year, e_day, e_month, e_year):
-        print("Scrape all range process called!")
+    def scrape_all_range_palo_text_process(self, s_day, s_month, s_year, e_day, e_month, e_year):
+        print("Scrape website texts process called!")
         firefox_options = webdriver.FirefoxOptions()
         driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
         scraper = ProthomAloTextScraper(driver)
         asyncio.run(scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
+        # asyncio.run(prothomalo_text_scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
+    
+    def scrape_all_range_palo_img_process(self, s_day, s_month, s_year, e_day, e_month, e_year):
+        print("Scrape article images process called!")
+        firefox_options = webdriver.FirefoxOptions()
+        driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), service_args=['--marionette-port', '2828', '--connect-existing'], options=firefox_options)
+        scraper = ProthomAloImgScraper(driver)
+        asyncio.run(scraper.scrape_all_range(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
         # asyncio.run(prothomalo_text_scraper.scrape_all_range_palo(start_day=s_day, start_month=s_month, start_year=s_year, end_day=e_day, end_month=e_month, end_year=e_year))
     
     def change_appearance_mode_event(self, new_appearance_mode):
@@ -319,10 +356,11 @@ class App(ctk.CTk):
 
 if __name__ == "__main__":
     app = App()
-    t = threading.Thread(target=app.start())
-    t.start()
+    # t = threading.Thread(target=app.start())
+    # t.start()
+    
     # thread = threading.Thread(target=run_with_reloader, args=(App(), "<Control-R>", "<Control-r>"))
     # thread.start()
     # run_with_reloader(App(), "<Control-R>", "<Control-r>")
-    # app.start()
+    app.start()
     

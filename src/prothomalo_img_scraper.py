@@ -31,7 +31,7 @@ class ProthomAloImgScraper:
 
     def wait_until_visible(self, class_name):
         try:
-            image_elements = WebDriverWait(driver, 10).until(
+            image_elements = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, f"{class_name}"))
             )
         except Exception as e:
@@ -59,7 +59,7 @@ class ProthomAloImgScraper:
             ShowDatePopUp();
             document.querySelector('.ui-datepicker-current-day').click();
         """
-        driver.execute_script(script)
+        self.driver.execute_script(script)
 
     def process_for_article_image(self, html_content, output_directory):
         soup = BeautifulSoup(html_content, 'html.parser')
@@ -153,7 +153,7 @@ class ProthomAloImgScraper:
                 # print("waiting")
                 time.sleep(0.2)
                 if compare_dates(paper_date, f"{month}/{day}/{year}"):
-                    print(paper_date)
+                    # print(paper_date)
                     page_html = driver.page_source
                     soup = BeautifulSoup(page_html, 'html.parser')
                     li_elements = soup.find_all(class_="owl-item")
@@ -163,7 +163,7 @@ class ProthomAloImgScraper:
                         break
             except:
                 pass
-        print(num_pages)
+        print("Number of pages:", num_pages)
             
         prev_orgid_values = None
         for i in range(1, num_pages + 1):
@@ -272,7 +272,7 @@ class ProthomAloImgScraper:
                 current_time = now.strftime("%H:%M:%S")
                 print(f"Current Time: {current_time}")
                 try: 
-                    await self.main(driver, year, month, day) 
+                    await self.main(self.driver, year, month, day) 
                     pbar.update(1)
                     count += 1
                 except Exception as e:

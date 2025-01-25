@@ -1,4 +1,4 @@
-# Epaper Scraper
+# E-paper Scraper
 
 This is a Python-based web scraper for extracting data from online newspapers. Tested on [Jugantor](https://epaper.jugantor.com/) and [Prothom Alo](https://epaper.prothomalo.com/Home/) newspaper from 2012 to 2024 in a Windows 11 machine.
 
